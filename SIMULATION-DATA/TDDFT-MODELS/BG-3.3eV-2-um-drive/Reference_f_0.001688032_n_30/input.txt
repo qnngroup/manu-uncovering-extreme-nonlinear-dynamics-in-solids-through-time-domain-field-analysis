@@ -1,0 +1,85 @@
+#Lines starting with "#" are ignored
+#OMP param:
+no_of_OMP_threads
+20
+
+#Grid param:
+deltx
+0.1
+noofgps
+21250
+noofgpsread
+21250
+#Prop param:
+noofksorbs_half
+200
+upnotequaldown
+0
+imag_timestep
+0.5
+real_timestep
+0.1
+no_of_imag_timesteps
+0
+no_of_real_timesteps
+83000
+obs_output_every
+10
+dipole_output_every
+1
+dumpingstepwidth
+1
+potonlyfromreadorbitals % set to 1 if you want the potential frozen (during real-time prop.)
+0
+potonlyfromreadorbitalsalsoduringimag % set to  0 if relaxation on bigger grid is desired (update Kohn-Sham pot. during imag)
+0
+convergence_check
+2
+str_initial_state
+/home/bylling/Programs/TDDFT_Two_Pulse_Version3.2/data/Initial_data_a_5.30/wfup.dat
+outputofinterest
+0
+
+#Diagonalization param:
+do_diag_from_imag
+0
+no_of_orbitals_for_output
+3000
+
+#Stat pot param:
+scalarpotx
+scalarpot_array
+anull
+5.3
+eps_ei
+2.25
+eps_ee
+2.25
+Z_1
+4.0
+noofnucl
+100
+imagpot_ampl
+50
+imagpot_radi
+285
+imagpot_pow2n
+4
+
+#DFT XC potentials
+xcpot
+lda
+
+#Vector pot param:
+vecpotx
+vecpot_sinusodial
+frequ
+0.023
+noofcycl
+30
+adach
+0.001688032
+
+
+
+

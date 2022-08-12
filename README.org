@@ -1,0 +1,7 @@
+* Description
+
+Simulation data, figures, and analysis for [FIXME: TITLE].
+
+[FIXME: Reference to the paper when submitted/accepted/posted to arXiv].
+
+
