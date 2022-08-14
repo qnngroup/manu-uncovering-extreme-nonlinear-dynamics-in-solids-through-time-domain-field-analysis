@@ -733,10 +733,6 @@ dt = (tau_range[1] - tau_range[0])*1e-15*pca.tcon
 nperseg_spec = np.ceil(T/dt) + 1
 noverlap_spec = np.floor(nperseg_spec/2.0)
 
-print(nperseg_spec)
-print(w0)
-print(dt)
-
 #Calculate spectrogram
 #f_spec, t_spec, spectrogram = stft(tddft_data['F_gen'], fs = pca.tcon/dt/1e15, 
 #                           nperseg=3*nperseg_spec, window=('gaussian', nperseg_spec*3))
@@ -753,7 +749,7 @@ f_harm = w0*pca.tcon/2/np.pi/1e15 #harmonic frequency
 f_norm = f_spec/f_harm #Normalized by harmonic order
 c_norm = np.max(np.abs(spectrogram[np.where(f_norm >= 5), :]))
 spectrogram = spectrogram/c_norm
-plt.pcolormesh(f_norm, t_spec, np.log(np.abs(spectrogram)**2).transpose(), shading='gouraud', cmap='jet')
+plt.pcolormesh(f_norm, t_spec - t_fs_center, np.log(np.abs(spectrogram)**2).transpose(), shading='gouraud', cmap='jet')
 
 
 #plt.ylim(40 - 2*6.6, 40 + 2*6.6)
@@ -763,7 +759,7 @@ plt.ylabel('Time (fs)', fontsize=14)
 cbar = plt.colorbar()
 #plt.clim(-20, -5)
 plt.clim(-25, 0)
-plt.ylim(0, 160)
+plt.ylim(-100, 60)
 plt.xlim(2.5, 10)
 
 plt.tick_params(labelsize=14)
@@ -773,7 +769,7 @@ cbar.ax.set_ylabel('log(Intensity) (arb. units)', fontsize=14)
 ax = plt.gca()
 
 photon_energy = f_harm*1e15*2*np.pi*pcSI.hbar/pcSI.evcon #Find photon energy of driver in eV
-plt.axvline(BG/photon_energy)
+plt.axvline(BG/photon_energy, linewidth = 2, color='white');
 ```
 
 ```{code-cell} ipython3
@@ -803,7 +799,7 @@ spectrogram = spectrogram/c_norm
 fig = plt.figure()
 fig.set_size_inches(7, 5)
 
-plt.pcolormesh(f_spec/f_harm, t_spec - 40, np.log(np.abs(spectrogram)**2).transpose(), shading='gouraud', cmap='jet')
+plt.pcolormesh(f_spec/f_harm, t_spec - 40 - t_fs_center, np.log(np.abs(spectrogram)**2).transpose(), shading='gouraud', cmap='jet')
 
 
 #plt.ylim(40 - 2*6.6, 40 + 2*6.6)
@@ -812,8 +808,8 @@ plt.xlabel('Harmonic Order', fontsize=14)
 plt.ylabel('Time (fs)', fontsize=14)
 cbar = plt.colorbar()
 #plt.clim(-20, -5)
-plt.clim(-30, 0)
-plt.ylim(0, 160)
+plt.clim(-25, 0)
+plt.ylim(-100, 60)
 plt.xlim(2.5, 10)
 
 plt.tick_params(labelsize=14)
@@ -823,5 +819,5 @@ cbar.ax.set_ylabel('log(Intensity) (arb. units)', fontsize=14)
 ax = plt.gca()
 
 photon_energy = f_harm*1e15*2*np.pi*pcSI.hbar/pcSI.evcon #Find photon energy of driver in eV
-plt.axvline(BG/photon_energy);
+plt.axvline(BG/photon_energy, linewidth=2, color='white');
 ```
