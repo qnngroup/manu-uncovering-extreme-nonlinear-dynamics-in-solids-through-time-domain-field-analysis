@@ -124,63 +124,11 @@ plt.semilogy(tddft_data_2p3_low['w_norm'],
             linewidth=2.0)
 
 plt.xlim(0, 25)
-plt.xlabel('Harmoinic Order', fontsize=14)
+plt.xlabel('Harmonic Order', fontsize=14)
 plt.ylabel('Intensity (arb. unit)', fontsize=14)
 plt.ylim(1e-2, 1e9)
 plt.legend(fontsize=13)
 plt.tick_params(labelsize=14)
-```
-
-+++ {"tags": []}
-
-## Time-Frequency Spectrograms
-
-+++
-
-### Gabor Transform -- High Spectral + High Temporal Resolution
-
-```{code-cell} ipython3
-T = 2*np.pi/w0 #in atomic units
-dt = t[1] - t[0]
-nperseg_spec = np.ceil(T/dt) + 1
-noverlap_spec = np.floor(nperseg_spec/2.0)
-
-
-#Calculate spectrogram
-#f_spec, t_spec, spectrogram = stft(tddft_data['F_gen'], fs = pca.tcon/dt/1e15, 
-#                           nperseg=3*nperseg_spec, window=('gaussian', nperseg_spec*3))
-
-f_spec, t_spec, spectrogram = stft(tddft_data['F_gen'], fs = pca.tcon/dt/1e15, 
-                                nperseg=nperseg_spec*5,
-                                noverlap=nperseg_spec*4.9,
-                                window=('gaussian', nperseg_spec*0.35))
-
-fig = plt.figure()
-fig.set_size_inches(7, 5)
-
-f_harm = w0*pca.tcon/2/np.pi/1e15 #harmonic frequency
-f_norm = f_spec/f_harm #Normalized by harmonic order
-plt.pcolormesh(f_spec/f_harm, t_spec, np.log(np.abs(spectrogram)**2).transpose(), shading='gouraud', cmap='jet')
-
-
-#plt.ylim(40 - 2*6.6, 40 + 2*6.6)
-
-plt.xlabel('Harmonic Order', fontsize=14)
-plt.ylabel('Time (fs)', fontsize=14)
-cbar = plt.colorbar()
-#plt.clim(-20, -5)
-plt.clim(-30, -10)
-plt.ylim(20, 160)
-plt.xlim(2.5, 30.5)
-
-plt.tick_params(labelsize=14)
-cbar.ax.tick_params(labelsize=14)
-cbar.ax.set_ylabel('log(Intensity) (arb. units)', fontsize=14)
-
-ax = plt.gca()
-
-photon_energy = f_harm*1e15*2*np.pi*pcSI.hbar/pcSI.evcon #Find photon energy of driver in eV
-plt.axvline(BG/photon_energy)
 ```
 
 ## Time-Domain Fields
@@ -526,7 +474,11 @@ harm_end = 40
 F_gen_region, F_gen_region_f = load.cutSpectralRegion(tddft_data_2_high['w_norm'], 
                                                     tddft_data_2_high['F_gen_f'], 
                                                     harm_start, harm_end)
+
+w0 = 0.023 #Angular frequency of drive (atomic units)
+
 t_fs = t_2_high_fs
+t = t_2_high
 
 #Driving pulse and parameters
 dt_fs = t_fs[1] - t_fs[0]
@@ -683,6 +635,8 @@ Again, if the antenna itself has a finite bandwidth, this could also be incorpor
 # -- Get the peaks fo the first +/-N harmonics:
 N = 10 #Number of harmonics to correct
 H_sampler_n = np.zeros(2*N + 1) + 0j #Sampler value at each harmonic (for envelope determination)
+harm_corr_start = 0
+harm_corr_end = 9.5
 
 #Find H_sampler at each harmnic value n in [-N, N].
 k = 0
@@ -703,6 +657,17 @@ w_correction_norm = w_J_corr[w_correction_range]/wc_drive #Get relevant frequenc
 correction = f_correction(w_correction_norm) #Now determine the correction curve
 correction = correction/correction.max()
 
+
+F_sampled, F_sampled_f = load.cutSpectralRegion(w_J_corr/wc_drive, 
+                                                    J_corr_f/(np.abs(J_corr_f)).max(), 
+                                                    harm_corr_start, harm_corr_end)
+
+J_corr_f_corrected = J_corr_f
+J_corr_f_corrected[w_correction_range] = (J_corr_f[w_correction_range]/correction)/(np.abs(J_corr_f[w_correction_range]/correction)).max()
+F_sampled_corrected, F_sampled_corrected_f = load.cutSpectralRegion(np.fft.fftshift(w_J_corr/wc_drive), 
+                                                    np.fft.fftshift(J_corr_f_corrected), 
+                                                    harm_corr_start, harm_corr_end)
+
 #-- Plot the original and corrected spectra, along with the correction factor curve
 fig = plt.figure()
 fig.set_size_inches(10, 7)
@@ -712,10 +677,10 @@ ax.append(fig.add_subplot(1, 1, 1))
 
 ax[k].plot(w_correction_norm, np.abs(correction), label='Correction Curve')
 
-ax[k].plot(w_correction_norm, np.abs(J_corr_f[w_correction_range])/(np.abs(J_corr_f[w_correction_range])).max(),
+ax[k].plot(w_J_corr/wc_drive, np.abs(F_sampled_f),
      label='Uncorrected Sampled Spectrum')
 
-ax[k].plot(w_correction_norm, np.abs(J_corr_f[w_correction_range]/correction)/(np.abs(J_corr_f[w_correction_range]/correction)).max(), 
+ax[k].plot(w_J_corr/wc_drive, np.fft.fftshift(np.abs(F_sampled_corrected_f)), 
            label='Corrected Sampled Spectrum')
 
 ax[k].plot(w_simulation/wc_drive, np.abs(simulation_f)/(np.abs(simulation_f)).max(),
@@ -725,7 +690,7 @@ ax[k].set_xlim(2.5, 10.5)
 ax[k].set_ylim(0, 1.3)
 ax[k].legend()
 ax[k].set_xlabel('$\omega/\omega_c$')
-ax[k].set_ylabel('Field Spectrum')
+ax[k].set_ylabel('Field Spectrum');
 ```
 
 ```{code-cell} ipython3
@@ -738,16 +703,125 @@ J_corr_corrected = np.real(np.fft.ifft(np.fft.fftshift(J_corr_f_corrected)))
 fig = plt.figure()
 fig.set_size_inches(10, 7)
 ax = []
-t_cycle_center = -10
+t_cycle_center = 0
 t_range = 50
 
-t_fs_center = t_fs - (t_fs[-1] + t_fs[0])/2.0
+t_fs_center = (t_fs[-1] + t_fs[0])/2.0
 
 ax.append(fig.add_subplot(1, 1, 1))
-ax[0].plot(tau_range, (J_corr_corrected/J_corr_corrected.max())**2, label='Sampler Output')
-ax[0].plot(t_fs_centered, (F_gen_region/F_gen_region.max())**2, label='Simulated HHG Fields')
+# ax[0].plot(tau_range, (J_corr_corrected/np.abs(J_corr_corrected).max())**2, 
+#            label='Sampler Output')
+ax[0].plot(tau_range, (F_sampled_corrected/np.abs(F_sampled_corrected).max())**2, 
+           label='Sampler Output')
+ax[0].plot(t_fs_centered, (F_gen_region/np.abs(F_gen_region).max())**2, 
+           label='Simulated HHG Fields',
+           linewidth=3.0, alpha=0.6)
+ax[0].plot(tddft_data_2_high['t_drive']*1e15/pca.tcon - t_fs_center, 
+         tddft_data_2_high['F_drive']**2, 
+         label=r'$F_\mathrm{drive}$')
 ax[0].set_xlim(t_cycle_center - t_range/2.0, t_cycle_center + t_range/2.0)
 ax[0].legend()
 ax[0].set_xlabel('Time (fs)')
 ax[0].set_ylabel('Harmonic Field/Sampler Output (arb. units)')
+```
+
+### Gabor Transform -- High Spectral + High Temporal Resolution
+
+```{code-cell} ipython3
+T = 2*np.pi/w0 #in atomic units
+dt = (tau_range[1] - tau_range[0])*1e-15*pca.tcon
+nperseg_spec = np.ceil(T/dt) + 1
+noverlap_spec = np.floor(nperseg_spec/2.0)
+
+print(nperseg_spec)
+print(w0)
+print(dt)
+
+#Calculate spectrogram
+#f_spec, t_spec, spectrogram = stft(tddft_data['F_gen'], fs = pca.tcon/dt/1e15, 
+#                           nperseg=3*nperseg_spec, window=('gaussian', nperseg_spec*3))
+
+f_spec, t_spec, spectrogram = stft(F_sampled_corrected, fs = pca.tcon/dt/1e15, 
+                                nperseg=nperseg_spec*5,
+                                noverlap=nperseg_spec*4.9,
+                                window=('gaussian', nperseg_spec*0.35))
+
+fig = plt.figure()
+fig.set_size_inches(7, 5)
+
+f_harm = w0*pca.tcon/2/np.pi/1e15 #harmonic frequency
+f_norm = f_spec/f_harm #Normalized by harmonic order
+c_norm = np.max(np.abs(spectrogram[np.where(f_norm >= 5), :]))
+spectrogram = spectrogram/c_norm
+plt.pcolormesh(f_norm, t_spec, np.log(np.abs(spectrogram)**2).transpose(), shading='gouraud', cmap='jet')
+
+
+#plt.ylim(40 - 2*6.6, 40 + 2*6.6)
+
+plt.xlabel('Harmonic Order', fontsize=14)
+plt.ylabel('Time (fs)', fontsize=14)
+cbar = plt.colorbar()
+#plt.clim(-20, -5)
+plt.clim(-25, 0)
+plt.ylim(0, 160)
+plt.xlim(2.5, 10)
+
+plt.tick_params(labelsize=14)
+cbar.ax.tick_params(labelsize=14)
+cbar.ax.set_ylabel('log(Intensity) (arb. units)', fontsize=14)
+
+ax = plt.gca()
+
+photon_energy = f_harm*1e15*2*np.pi*pcSI.hbar/pcSI.evcon #Find photon energy of driver in eV
+plt.axvline(BG/photon_energy)
+```
+
+```{code-cell} ipython3
+T = 2*np.pi/w0 #in atomic units
+dt = t[1] - t[0]
+nperseg_spec = np.ceil(T/dt) + 1
+noverlap_spec = np.floor(nperseg_spec/2.0)
+
+#Calculate spectrogram
+#f_spec, t_spec, spectrogram = stft(tddft_data['F_gen'], fs = pca.tcon/dt/1e15, 
+#                           nperseg=3*nperseg_spec, window=('gaussian', nperseg_spec*3))
+
+f_spec, t_spec, spectrogram = stft(tddft_data_2_high['F_gen'], fs = pca.tcon/dt/1e15, 
+                                nperseg=nperseg_spec*5,
+                                noverlap=nperseg_spec*4.9,
+                                window=('gaussian', nperseg_spec*0.35))
+
+spectrogram = spectrogram/np.max(np.max(np.abs(spectrogram)))
+
+
+
+f_harm = w0*pca.tcon/2/np.pi/1e15 #harmonic frequency
+f_norm = f_spec/f_harm #Normalized by harmonic order
+c_norm = np.max(np.abs(spectrogram[np.where(f_norm >= 5), :]))
+spectrogram = spectrogram/c_norm
+
+fig = plt.figure()
+fig.set_size_inches(7, 5)
+
+plt.pcolormesh(f_spec/f_harm, t_spec - 40, np.log(np.abs(spectrogram)**2).transpose(), shading='gouraud', cmap='jet')
+
+
+#plt.ylim(40 - 2*6.6, 40 + 2*6.6)
+
+plt.xlabel('Harmonic Order', fontsize=14)
+plt.ylabel('Time (fs)', fontsize=14)
+cbar = plt.colorbar()
+#plt.clim(-20, -5)
+plt.clim(-30, 0)
+plt.ylim(0, 160)
+plt.xlim(2.5, 10)
+
+plt.tick_params(labelsize=14)
+cbar.ax.tick_params(labelsize=14)
+cbar.ax.set_ylabel('log(Intensity) (arb. units)', fontsize=14)
+
+ax = plt.gca()
+
+photon_energy = f_harm*1e15*2*np.pi*pcSI.hbar/pcSI.evcon #Find photon energy of driver in eV
+plt.axvline(BG/photon_energy);
 ```

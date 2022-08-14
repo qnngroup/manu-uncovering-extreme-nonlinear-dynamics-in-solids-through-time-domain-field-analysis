@@ -1,4 +1,20 @@
 * Notebook
+** 220814 -- Updating Sampling Plots
+
+I am pretty happy now with the sampling plots.
+
+I realized if we are going proof of concept, I shouldn't restrict myself to a super short 2-um pulse, but I should make it short enough to reduce the amount of needed explanation about the sampling.
+
+I now simulate the response with a driver having:
+ - 2-um center frequency
+ - 15 fs duration (Gaussian FWHM)
+ - Peak field of 7 GV/m
+
+Then we compare in the time-domain the sampled fields and gabor transforms to indicate that all salient features of the time-frequency information up to the 9th harmonic should be able to be captured.
+
+The only issue remaining is the plasmonic response of the material, but I think this can be overcome with further engineering.
+
+
 
 * Tasks
 ** TODO Update paper title and citation in the README.
