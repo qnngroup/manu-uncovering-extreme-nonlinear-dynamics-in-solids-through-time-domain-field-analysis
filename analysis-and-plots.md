@@ -742,34 +742,17 @@ f_spec, t_spec, spectrogram = stft(F_sampled_corrected, fs = pca.tcon/dt/1e15,
                                 noverlap=nperseg_spec*4.9,
                                 window=('gaussian', nperseg_spec*0.35))
 
-fig = plt.figure()
-fig.set_size_inches(7, 5)
 
 f_harm = w0*pca.tcon/2/np.pi/1e15 #harmonic frequency
 f_norm = f_spec/f_harm #Normalized by harmonic order
 c_norm = np.max(np.abs(spectrogram[np.where(f_norm >= 5), :]))
 spectrogram = spectrogram/c_norm
-plt.pcolormesh(f_norm, t_spec - t_fs_center, np.log(np.abs(spectrogram)**2).transpose(), shading='gouraud', cmap='jet')
 
 
-#plt.ylim(40 - 2*6.6, 40 + 2*6.6)
-
-plt.xlabel('Harmonic Order', fontsize=14)
-plt.ylabel('Time (fs)', fontsize=14)
-cbar = plt.colorbar()
-#plt.clim(-20, -5)
-plt.clim(-25, 0)
-plt.ylim(-100, 60)
-plt.xlim(2.5, 10)
-
-plt.tick_params(labelsize=14)
-cbar.ax.tick_params(labelsize=14)
-cbar.ax.set_ylabel('log(Intensity) (arb. units)', fontsize=14)
-
-ax = plt.gca()
-
-photon_energy = f_harm*1e15*2*np.pi*pcSI.hbar/pcSI.evcon #Find photon energy of driver in eV
-plt.axvline(BG/photon_energy, linewidth = 2, color='white');
+#Store data for later plotting after this analysis:
+spectrogram_sampled = spectrogram
+f_norm_sampled = f_norm
+t_spec_sampled = t_spec + tau_range[0]
 ```
 
 ```{code-cell} ipython3
@@ -796,10 +779,28 @@ f_norm = f_spec/f_harm #Normalized by harmonic order
 c_norm = np.max(np.abs(spectrogram[np.where(f_norm >= 5), :]))
 spectrogram = spectrogram/c_norm
 
-fig = plt.figure()
-fig.set_size_inches(7, 5)
+#Store data for later plotting after this analysis:
+spectrogram_simulated = spectrogram
+f_norm_simulated = f_norm
+t_spec_simulated = t_spec - t_fs_center - 
 
-plt.pcolormesh(f_spec/f_harm, t_spec - 40 - t_fs_center, np.log(np.abs(spectrogram)**2).transpose(), shading='gouraud', cmap='jet')
+print(t_spec_sampled[0] - 2.5*T*1e15/pca.tcon)
+print(t_spec_simulated[0])
+print(tau_range[0])
+```
+
+```{code-cell} ipython3
+fig = plt.figure()
+fig.set_size_inches(10, 10)
+
+gs = fig.add_gridspec(2,2)
+ax1 = fig.add_subplot(gs[0, :])
+
+ax2 = fig.add_subplot(gs[1, 0])
+
+plt.pcolormesh(f_norm_simulated, t_spec_simulated, 
+               np.log(np.abs(spectrogram_simulated)**2).transpose(), 
+               shading='gouraud', cmap='jet')
 
 
 #plt.ylim(40 - 2*6.6, 40 + 2*6.6)
@@ -816,7 +817,29 @@ plt.tick_params(labelsize=14)
 cbar.ax.tick_params(labelsize=14)
 cbar.ax.set_ylabel('log(Intensity) (arb. units)', fontsize=14)
 
-ax = plt.gca()
+photon_energy = f_harm*1e15*2*np.pi*pcSI.hbar/pcSI.evcon #Find photon energy of driver in eV
+plt.axvline(BG/photon_energy, linewidth=2, color='white');
+
+ax3 = fig.add_subplot(gs[1, 1])
+
+plt.pcolormesh(f_norm_sampled, t_spec_sampled, 
+               np.log(np.abs(spectrogram_sampled)**2).transpose(), 
+               shading='gouraud', cmap='jet')
+
+
+#plt.ylim(40 - 2*6.6, 40 + 2*6.6)
+
+plt.xlabel('Harmonic Order', fontsize=14)
+plt.ylabel('Time (fs)', fontsize=14)
+cbar = plt.colorbar()
+#plt.clim(-20, -5)
+plt.clim(-25, 0)
+plt.ylim(-100, 60)
+plt.xlim(2.5, 10)
+
+plt.tick_params(labelsize=14)
+cbar.ax.tick_params(labelsize=14)
+cbar.ax.set_ylabel('log(Intensity) (arb. units)', fontsize=14)
 
 photon_energy = f_harm*1e15*2*np.pi*pcSI.hbar/pcSI.evcon #Find photon energy of driver in eV
 plt.axvline(BG/photon_energy, linewidth=2, color='white');
