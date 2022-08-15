@@ -623,11 +623,11 @@ plt.xlim(-10, 10)
 fig.savefig('sampler-current-response.pdf', bbox_inches='tight')
 ```
 
-### Correct the sampled pulse in frequency-domain
+### Correct the Sampled Waveform
 
 +++
 
-Finally, we correct the response by removing the amplitude envelope of the finite bandwidth response of the sampler due to the emission response.  
+We correct the response by removing the amplitude envelope of the finite bandwidth response of the sampler due to the emission response.  
 
 Again, if the antenna itself has a finite bandwidth, this could also be incorporated/accounted for here in a similar way. However, we currently assume the antenna bandwidth is infinite.
 
@@ -693,39 +693,11 @@ ax[k].set_xlabel('$\omega/\omega_c$')
 ax[k].set_ylabel('Field Spectrum');
 ```
 
-```{code-cell} ipython3
-J_corr_f_corrected = J_corr_f + 0j
-J_corr_f_corrected[w_correction_range] = J_corr_f[w_correction_range]/correction
+### Gabor Transform -- High Spectral + High Temporal Resolution Time-Freq. Analysis
 
-J_corr_corrected = np.real(np.fft.ifft(np.fft.fftshift(J_corr_f_corrected)))
++++
 
-# -- Compare the correlation current with the harmonic signal of interest:
-fig = plt.figure()
-fig.set_size_inches(10, 7)
-ax = []
-t_cycle_center = 0
-t_range = 50
-
-t_fs_center = (t_fs[-1] + t_fs[0])/2.0
-
-ax.append(fig.add_subplot(1, 1, 1))
-# ax[0].plot(tau_range, (J_corr_corrected/np.abs(J_corr_corrected).max())**2, 
-#            label='Sampler Output')
-ax[0].plot(tau_range, (F_sampled_corrected/np.abs(F_sampled_corrected).max())**2, 
-           label='Sampler Output')
-ax[0].plot(t_fs_centered, (F_gen_region/np.abs(F_gen_region).max())**2, 
-           label='Simulated HHG Fields',
-           linewidth=3.0, alpha=0.6)
-ax[0].plot(tddft_data_2_high['t_drive']*1e15/pca.tcon - t_fs_center, 
-         tddft_data_2_high['F_drive']**2, 
-         label=r'$F_\mathrm{drive}$')
-ax[0].set_xlim(t_cycle_center - t_range/2.0, t_cycle_center + t_range/2.0)
-ax[0].legend()
-ax[0].set_xlabel('Time (fs)')
-ax[0].set_ylabel('Harmonic Field/Sampler Output (arb. units)')
-```
-
-### Gabor Transform -- High Spectral + High Temporal Resolution
+Here we compute the Gabor Transforms (basically STFTs having Gaussian windows).  This enables us to compare in a more complete and visual way the quality of the sampled waveform and how well it matches to the true waveform from simulation.  
 
 ```{code-cell} ipython3
 T = 2*np.pi/w0 #in atomic units
@@ -770,9 +742,6 @@ f_spec, t_spec, spectrogram = stft(tddft_data_2_high['F_gen'], fs = pca.tcon/dt/
                                 noverlap=nperseg_spec*4.9,
                                 window=('gaussian', nperseg_spec*0.35))
 
-spectrogram = spectrogram/np.max(np.max(np.abs(spectrogram)))
-
-
 
 f_harm = w0*pca.tcon/2/np.pi/1e15 #harmonic frequency
 f_norm = f_spec/f_harm #Normalized by harmonic order
@@ -782,19 +751,60 @@ spectrogram = spectrogram/c_norm
 #Store data for later plotting after this analysis:
 spectrogram_simulated = spectrogram
 f_norm_simulated = f_norm
-t_spec_simulated = t_spec - t_fs_center - 
-
-print(t_spec_sampled[0] - 2.5*T*1e15/pca.tcon)
-print(t_spec_simulated[0])
-print(tau_range[0])
+t_spec_simulated = t_spec + t_fs_centered[0]
 ```
 
 ```{code-cell} ipython3
 fig = plt.figure()
 fig.set_size_inches(10, 10)
 
-gs = fig.add_gridspec(2,2)
+gs = fig.add_gridspec(2,2, width_ratios=(1, 1.25))
 ax1 = fig.add_subplot(gs[0, :])
+
+t_cycle_center = 0
+t_range = 50
+
+t_fs_center = (t_fs[-1] + t_fs[0])/2.0
+
+
+plt.plot(tau_range, (F_sampled_corrected/np.abs(F_sampled_corrected).max())**2, 
+           label='Sampled Fields')
+plt.plot(t_fs_centered, (F_gen_region/np.abs(F_gen_region).max())**2, 
+           label='HH Fields',
+           linewidth=3.0, alpha=0.6)
+plt.plot(tddft_data_2_high['t_drive']*1e15/pca.tcon - t_fs_center, 
+         tddft_data_2_high['F_drive']**2, 
+         label=r'$F_\mathrm{drive}$')
+
+
+plt.legend(fontsize=14, loc='upper left')
+
+plt.xlim(t_cycle_center - t_range/2.0, t_cycle_center + t_range/2.0)
+plt.ylim(0, 1.1)
+plt.xlabel('Time (fs)', fontsize=14)
+plt.ylabel('Squared Field (arb. units)', fontsize=14)
+plt.tick_params(labelsize=14)
+
+#Labeling and look
+plt.text(0.99, 0.925, '(a)', 
+         horizontalalignment='right',
+         verticalalignment='center', 
+         transform=ax1.transAxes,
+         fontsize=14,
+         bbox=dict(facecolor='white', alpha=0.75, edgecolor='none'))
+plt.text(0.20, 0.05, 'Intraband', 
+         horizontalalignment='left',
+         verticalalignment='bottom', 
+         transform=ax1.transAxes,
+         fontsize=14,
+         bbox=dict(facecolor='white', alpha=0.75, edgecolor='none'))
+plt.text(0.90, 0.05, 'Interband', 
+         horizontalalignment='right',
+         verticalalignment='bottom', 
+         transform=ax1.transAxes,
+         fontsize=14,
+         bbox=dict(facecolor='white', alpha=0.75, edgecolor='none'))
+
 
 ax2 = fig.add_subplot(gs[1, 0])
 
@@ -803,22 +813,28 @@ plt.pcolormesh(f_norm_simulated, t_spec_simulated,
                shading='gouraud', cmap='jet')
 
 
-#plt.ylim(40 - 2*6.6, 40 + 2*6.6)
-
 plt.xlabel('Harmonic Order', fontsize=14)
 plt.ylabel('Time (fs)', fontsize=14)
-cbar = plt.colorbar()
+#cbar = plt.colorbar()
 #plt.clim(-20, -5)
 plt.clim(-25, 0)
-plt.ylim(-100, 60)
-plt.xlim(2.5, 10)
+plt.ylim(-60, 100)
+plt.xlim(2.5, 9.5)
 
 plt.tick_params(labelsize=14)
 cbar.ax.tick_params(labelsize=14)
-cbar.ax.set_ylabel('log(Intensity) (arb. units)', fontsize=14)
+ax2.set_xticks([3,5,7,9])
 
 photon_energy = f_harm*1e15*2*np.pi*pcSI.hbar/pcSI.evcon #Find photon energy of driver in eV
 plt.axvline(BG/photon_energy, linewidth=2, color='white');
+
+plt.text(0.97, 0.925, '(b)', 
+         horizontalalignment='right',
+         verticalalignment='center', 
+         transform=ax2.transAxes,
+         fontsize=14,
+         color='black',
+         bbox=dict(facecolor='white', alpha=0.0, edgecolor='none'))
 
 ax3 = fig.add_subplot(gs[1, 1])
 
@@ -827,20 +843,31 @@ plt.pcolormesh(f_norm_sampled, t_spec_sampled,
                shading='gouraud', cmap='jet')
 
 
-#plt.ylim(40 - 2*6.6, 40 + 2*6.6)
-
 plt.xlabel('Harmonic Order', fontsize=14)
-plt.ylabel('Time (fs)', fontsize=14)
+
 cbar = plt.colorbar()
-#plt.clim(-20, -5)
+
 plt.clim(-25, 0)
-plt.ylim(-100, 60)
-plt.xlim(2.5, 10)
+plt.ylim(-60, 100)
+plt.xlim(2.5, 9.5)
 
 plt.tick_params(labelsize=14)
 cbar.ax.tick_params(labelsize=14)
 cbar.ax.set_ylabel('log(Intensity) (arb. units)', fontsize=14)
 
+#Turn off y-label of right plot as this axis is shared:
+plt.tick_params('y', labelleft=False)
+ax3.set_xticks([3,5,7,9])
+
+
 photon_energy = f_harm*1e15*2*np.pi*pcSI.hbar/pcSI.evcon #Find photon energy of driver in eV
-plt.axvline(BG/photon_energy, linewidth=2, color='white');
+plt.axvline(BG/photon_energy, linewidth=2, color='white')
+
+plt.text(0.97, 0.925, '(c)', 
+         horizontalalignment='right',
+         verticalalignment='center', 
+         transform=ax3.transAxes,
+         fontsize=14,
+         color='black',
+         bbox=dict(facecolor='white', alpha=0.0, edgecolor='none'));
 ```
