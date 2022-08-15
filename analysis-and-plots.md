@@ -129,6 +129,8 @@ plt.ylabel('Intensity (arb. unit)', fontsize=14)
 plt.ylim(1e-2, 1e9)
 plt.legend(fontsize=13)
 plt.tick_params(labelsize=14)
+
+plt.savefig('spectra.pdf', bbox_inches='tight')
 ```
 
 ## Time-Domain Fields
@@ -240,6 +242,8 @@ plt.ylabel('Squared Field (arb. units)', fontsize=14)
 plt.tick_params(labelsize=14)
 plt.xlim(70, 120)
 plt.ylim(0, 1);
+
+plt.savefig('time-domain-2-um-low.pdf', bbox_inches='tight');
 ```
 
 ### 2-um -- 5e10 W/cm2
@@ -353,6 +357,8 @@ plt.ylabel('Squared Field (arb. units)', fontsize=14)
 plt.tick_params(labelsize=14)
 plt.xlim(70, 120)
 plt.ylim(0, 1.1);
+
+plt.savefig('time-domain-2-um-high.pdf', bbox_inches='tight');
 ```
 
 ### 2.3-um -- 4e10 W/cm2
@@ -454,6 +460,8 @@ plt.ylabel('Squared Field (arb. units)', fontsize=14)
 plt.tick_params(labelsize=14)
 plt.xlim(80, 130)
 plt.ylim(0, 1.1);
+
+plt.savefig('time-domain-2p3-um-low.pdf', bbox_inches='tight');
 ```
 
 ## Sampling Simulations and Analysis
@@ -737,10 +745,16 @@ noverlap_spec = np.floor(nperseg_spec/2.0)
 #f_spec, t_spec, spectrogram = stft(tddft_data['F_gen'], fs = pca.tcon/dt/1e15, 
 #                           nperseg=3*nperseg_spec, window=('gaussian', nperseg_spec*3))
 
-f_spec, t_spec, spectrogram = stft(tddft_data_2_high['F_gen'], fs = pca.tcon/dt/1e15, 
+# f_spec, t_spec, spectrogram = stft(tddft_data_2_high['F_gen'], fs = pca.tcon/dt/1e15, 
+#                                 nperseg=nperseg_spec*5,
+#                                 noverlap=nperseg_spec*4.9,
+#                                 window=('gaussian', nperseg_spec*0.35))
+
+f_spec, t_spec, spectrogram = stft(F_gen_region, fs = pca.tcon/dt/1e15, 
                                 nperseg=nperseg_spec*5,
                                 noverlap=nperseg_spec*4.9,
                                 window=('gaussian', nperseg_spec*0.35))
+
 
 
 f_harm = w0*pca.tcon/2/np.pi/1e15 #harmonic frequency
@@ -770,15 +784,15 @@ gs = fig.add_gridspec(2,2, width_ratios=(1, 1.25))
 ax1 = fig.add_subplot(gs[0, :])
 
 t_cycle_center = 0
-t_range = 50
+t_range = 60
 
 t_fs_center = (t_fs[-1] + t_fs[0])/2.0
 
 
 plt.plot(tau_range, (F_sampled_corrected/np.abs(F_sampled_corrected).max())**2, 
-           label='Sampled Fields')
+           label='Sampled HH Fields')
 plt.plot(t_fs_centered, (F_gen_region/np.abs(F_gen_region).max())**2, 
-           label='HH Fields',
+           label='TDDFT HH Fields',
            linewidth=3.0, alpha=0.6)
 plt.plot(tddft_data_2_high['t_drive']*1e15/pca.tcon - t_fs_center, 
          tddft_data_2_high['F_drive']**2, 
@@ -788,7 +802,7 @@ plt.plot(tddft_data_2_high['t_drive']*1e15/pca.tcon - t_fs_center,
 plt.legend(fontsize=14, loc='upper left')
 
 plt.xlim(t_cycle_center - t_range/2.0, t_cycle_center + t_range/2.0)
-plt.ylim(0, 1.1)
+plt.ylim(0, 1.18)
 plt.xlabel('Time (fs)', fontsize=14)
 plt.ylabel('Squared Field (arb. units)', fontsize=14)
 plt.tick_params(labelsize=14)
@@ -806,7 +820,7 @@ plt.text(0.20, 0.05, 'Intraband',
          transform=ax1.transAxes,
          fontsize=14,
          bbox=dict(facecolor='white', alpha=0.75, edgecolor='none'))
-plt.text(0.90, 0.05, 'Interband', 
+plt.text(0.80, 0.05, 'Interband', 
          horizontalalignment='right',
          verticalalignment='bottom', 
          transform=ax1.transAxes,
@@ -818,7 +832,8 @@ ax2 = fig.add_subplot(gs[1, 0])
 
 plt.pcolormesh(f_norm_simulated, t_spec_simulated, 
                np.log(np.abs(spectrogram_simulated)**2).transpose(), 
-               shading='gouraud', cmap='jet')
+               shading='gouraud', cmap='jet',
+               rasterized='true')
 
 
 plt.xlabel('Harmonic Order', fontsize=14)
@@ -830,13 +845,12 @@ plt.ylim(-60, 100)
 plt.xlim(2.5, 9.5)
 
 plt.tick_params(labelsize=14)
-cbar.ax.tick_params(labelsize=14)
 ax2.set_xticks([3,5,7,9])
 
 photon_energy = f_harm*1e15*2*np.pi*pcSI.hbar/pcSI.evcon #Find photon energy of driver in eV
 plt.axvline(BG/photon_energy, linewidth=2, color='white');
 
-plt.text(0.97, 0.925, '(b)', 
+plt.text(0.97, 0.925, 'TDDFT HH Fields (b)', 
          horizontalalignment='right',
          verticalalignment='center', 
          transform=ax2.transAxes,
@@ -848,7 +862,8 @@ ax3 = fig.add_subplot(gs[1, 1])
 
 plt.pcolormesh(f_norm_sampled, t_spec_sampled, 
                np.log(np.abs(spectrogram_sampled)**2).transpose(), 
-               shading='gouraud', cmap='jet')
+               shading='gouraud', cmap='jet',
+               rasterized='true')
 
 
 plt.xlabel('Harmonic Order', fontsize=14)
@@ -871,11 +886,14 @@ ax3.set_xticks([3,5,7,9])
 photon_energy = f_harm*1e15*2*np.pi*pcSI.hbar/pcSI.evcon #Find photon energy of driver in eV
 plt.axvline(BG/photon_energy, linewidth=2, color='white')
 
-plt.text(0.97, 0.925, '(c)', 
+plt.text(0.97, 0.925, 'Sampled HH Fields (c)', 
          horizontalalignment='right',
          verticalalignment='center', 
          transform=ax3.transAxes,
          fontsize=14,
          color='black',
          bbox=dict(facecolor='white', alpha=0.0, edgecolor='none'));
+
+plt.savefig('sampled-vs-tddft-fields-2-um-high.pdf', bbox_inches='tight');
+plt.savefig('sampled-vs-tddft-fields-2-um-high.png', bbox_inches='tight', dpi=300);
 ```
