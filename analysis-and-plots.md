@@ -754,6 +754,14 @@ f_norm_simulated = f_norm
 t_spec_simulated = t_spec + t_fs_centered[0]
 ```
 
+### Create the Final Plot
+
++++
+
+This plot compares the full HH and time-sampled waveforms.  Gabor transforms are used to demonstrate that the full time-frequency information up to the 9th harmonic can be retrieved via solid-state sampling as performed in \[[Bionta *et al.*, Nature Photonics volume 15, pages 456–460 (2021)](https://www.nature.com/articles/s41566-021-00792-0)\]
+
+Other methods such as TIP-TOE \[[Cho *et al*, Scientific Reports volume 9, Article number: 16067 (2019)](https://www.nature.com/articles/s41598-019-52237-y)\] or NPS \[[Sederberg *et al.*, Nature Communications volume 11, Article number: 430 (2020)](https://www.nature.com/articles/s41467-019-14268-x)\] could be used.  
+
 ```{code-cell} ipython3
 fig = plt.figure()
 fig.set_size_inches(10, 10)

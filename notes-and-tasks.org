@@ -1,4 +1,8 @@
 * Notebook
+** 220815 -- Initial Draft Plots Complete
+
+The draft of the initial plots are all complete.  These might be subject to some slight further edits as we move forward, but should more or less be near final for initial submission.  
+
 ** 220814 -- Updating Sampling Plots
 
 *Updates*
@@ -30,11 +34,7 @@ Under this top (a) panel, would be (b) and (c) side by side (left and right) tha
 
  - Actual fields
  - Sampled fields
-
-
-
 * Tasks
 ** TODO Update paper title and citation in the README.
 ** TODO Add description of files contained within the repository.  
-** 
 
