@@ -788,15 +788,17 @@ t_range = 60
 
 t_fs_center = (t_fs[-1] + t_fs[0])/2.0
 
-
-plt.plot(tau_range, (F_sampled_corrected/np.abs(F_sampled_corrected).max())**2, 
-           label='Sampled HH Fields')
 plt.plot(t_fs_centered, (F_gen_region/np.abs(F_gen_region).max())**2, 
-           label='TDDFT HH Fields',
-           linewidth=3.0, alpha=0.6)
+         label='TDDFT HH Fields',
+         color='tab:green',
+         linewidth=3.0, alpha=0.6)
+plt.plot(tau_range, (F_sampled_corrected/np.abs(F_sampled_corrected).max())**2, 
+         label='Sampled HH Fields',
+         color='tab:red')
 plt.plot(tddft_data_2_high['t_drive']*1e15/pca.tcon - t_fs_center, 
          tddft_data_2_high['F_drive']**2, 
-         label=r'$F_\mathrm{drive}$')
+         label=r'$F_\mathrm{drive}$',
+         color='tab:blue')
 
 
 plt.legend(fontsize=14, loc='upper left')
