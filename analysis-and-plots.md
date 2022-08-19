@@ -5,7 +5,7 @@ jupytext:
     extension: .md
     format_name: myst
     format_version: 0.13
-    jupytext_version: 1.11.5
+    jupytext_version: 1.13.8
 kernelspec:
   display_name: Python 3 (ipykernel)
   language: python
@@ -515,8 +515,6 @@ del_length = t_drive.size - F_gen_region.size
 del_length_left = int(np.ceil(del_length/2.0))
 del_length_right = int(np.floor(del_length/2.0))
 
-
-
 F_gen_region_pad = np.zeros(t_drive.shape)
 F_gen_region_pad = np.pad(F_gen_region/F_gen_region.max(),
                           (del_length_left, del_length_right))
@@ -705,7 +703,7 @@ ax[k].set_ylabel('Field Spectrum');
 
 +++
 
-Here we compute the Gabor Transforms (basically STFTs having Gaussian windows).  This enables us to compare in a more complete and visual way the quality of the sampled waveform and how well it matches to the true waveform from simulation.  
+Here we compute the Gabor Transforms (basically STFTs having Gaussian windows).  This enables us to compare in a more complete and visual way the quality of the sampled waveform and how well it matches to the true waveform from simulation.
 
 ```{code-cell} ipython3
 T = 2*np.pi/w0 #in atomic units
@@ -774,7 +772,11 @@ t_spec_simulated = t_spec + t_fs_centered[0]
 
 This plot compares the full HH and time-sampled waveforms.  Gabor transforms are used to demonstrate that the full time-frequency information up to the 9th harmonic can be retrieved via solid-state sampling as performed in \[[Bionta *et al.*, Nature Photonics volume 15, pages 456–460 (2021)](https://www.nature.com/articles/s41566-021-00792-0)\]
 
-Other methods such as TIP-TOE \[[Cho *et al*, Scientific Reports volume 9, Article number: 16067 (2019)](https://www.nature.com/articles/s41598-019-52237-y)\] or NPS \[[Sederberg *et al.*, Nature Communications volume 11, Article number: 430 (2020)](https://www.nature.com/articles/s41467-019-14268-x)\] could be used.  
+Other methods such as TIP-TOE \[[Cho *et al*, Scientific Reports volume 9, Article number: 16067 (2019)](https://www.nature.com/articles/s41598-019-52237-y)\] or NPS \[[Sederberg *et al.*, Nature Communications volume 11, Article number: 430 (2020)](https://www.nature.com/articles/s41467-019-14268-x)\] could be used.
+
++++
+
+#### V1 -- Square Plot
 
 ```{code-cell} ipython3
 fig = plt.figure()
@@ -898,4 +900,132 @@ plt.text(0.97, 0.925, 'Sampled HH Fields (c)',
 
 plt.savefig('sampled-vs-tddft-fields-2-um-high.pdf', bbox_inches='tight');
 plt.savefig('sampled-vs-tddft-fields-2-um-high.png', bbox_inches='tight', dpi=300);
+```
+
+#### V2 -- Wide Plot
+
+```{code-cell} ipython3
+fig = plt.figure()
+fig.set_size_inches(15, 4)
+
+gs = fig.add_gridspec(1,2, width_ratios=(1, 1), wspace=0.15)
+gs1 = gs[0, 1].subgridspec(1, 2, width_ratios=(1, 1.25), hspace=0.0, wspace=0.0)
+
+ax1 = fig.add_subplot(gs[0, 0])
+
+t_cycle_center = -5
+t_range = 60
+
+t_fs_center = (t_fs[-1] + t_fs[0])/2.0
+
+plt.plot(t_fs_centered, (F_gen_region/np.abs(F_gen_region).max())**2, 
+         label='TDDFT HH Fields',
+         color='tab:green',
+         linewidth=3.0, alpha=0.6)
+plt.plot(tau_range, (F_sampled_corrected/np.abs(F_sampled_corrected).max())**2, 
+         label='Sampled HH Fields',
+         color='tab:red')
+plt.plot(tddft_data_2_high['t_drive']*1e15/pca.tcon - t_fs_center, 
+         tddft_data_2_high['F_drive']**2, 
+         label=r'$F_\mathrm{drive}$',
+         color='tab:blue')
+
+
+plt.legend(fontsize=14, loc='upper left', frameon=False)
+
+plt.xlim(t_cycle_center - t_range/2.0, t_cycle_center + t_range/2.0)
+plt.ylim(0, 1.38)
+plt.xlabel('Time (fs)', fontsize=14)
+plt.ylabel('Squared Field (arb. units)', fontsize=14)
+plt.tick_params(labelsize=14)
+
+#Labeling and look
+plt.text(0.99, 0.925, '(a)', 
+         horizontalalignment='right',
+         verticalalignment='center', 
+         transform=ax1.transAxes,
+         fontsize=14,
+         bbox=dict(facecolor='white', alpha=0.0, edgecolor='none'))
+plt.text(0.20, 0.05, 'Intraband', 
+         horizontalalignment='left',
+         verticalalignment='bottom', 
+         transform=ax1.transAxes,
+         fontsize=14,
+         bbox=dict(facecolor='white', alpha=0.75, edgecolor='none'))
+plt.text(0.9, 0.05, 'Interband', 
+         horizontalalignment='right',
+         verticalalignment='bottom', 
+         transform=ax1.transAxes,
+         fontsize=14,
+         bbox=dict(facecolor='white', alpha=0.75, edgecolor='none'))
+
+
+ax2 = fig.add_subplot(gs1[0, 0])
+
+plt.pcolormesh(f_norm_simulated[0:50], t_spec_simulated, 
+               np.log(np.abs(spectrogram_simulated[0:50, :])**2).transpose(), 
+               shading='gouraud', cmap='jet',
+               rasterized='true')
+
+
+plt.xlabel('Harmonic Order', fontsize=14)
+plt.ylabel('Time (fs)', fontsize=14, labelpad=-5)
+#cbar = plt.colorbar()
+#plt.clim(-20, -5)
+plt.clim(-25, 0)
+plt.ylim(-60, 100)
+plt.xlim(2.5, 9.5)
+
+plt.tick_params(labelsize=14)
+ax2.set_xticks([3,5,7,9])
+
+photon_energy = f_harm*1e15*2*np.pi*pcSI.hbar/pcSI.evcon #Find photon energy of driver in eV
+plt.axvline(BG/photon_energy, linewidth=2, color='white');
+
+plt.text(0.97, 0.925, 'TDDFT HH Fields (b)', 
+         horizontalalignment='right',
+         verticalalignment='center', 
+         transform=ax2.transAxes,
+         fontsize=14,
+         color='black',
+         bbox=dict(facecolor='white', alpha=0.0, edgecolor='none'))
+
+ax3 = fig.add_subplot(gs1[0, 1])
+
+plt.pcolormesh(f_norm_sampled, t_spec_sampled, 
+               np.log(np.abs(spectrogram_sampled)**2).transpose(), 
+               shading='gouraud', cmap='jet',
+               rasterized='true')
+
+
+plt.xlabel('Harmonic Order', fontsize=14)
+
+cbar = plt.colorbar()
+
+plt.clim(-25, 0)
+plt.ylim(-60, 100)
+plt.xlim(2.5, 9.5)
+
+plt.tick_params(labelsize=14)
+cbar.ax.tick_params(labelsize=14)
+cbar.ax.set_ylabel('log(Intensity) (arb. units)', fontsize=14)
+
+#Turn off y-label of right plot as this axis is shared:
+plt.tick_params('y', labelleft=False)
+ax3.set_xticks([3,5,7,9])
+
+
+photon_energy = f_harm*1e15*2*np.pi*pcSI.hbar/pcSI.evcon #Find photon energy of driver in eV
+plt.axvline(BG/photon_energy, linewidth=2, color='white')
+
+plt.text(0.97, 0.925, 'Sampled HH Fields (c)', 
+         horizontalalignment='right',
+         verticalalignment='center', 
+         transform=ax3.transAxes,
+         fontsize=14,
+         color='black',
+         bbox=dict(facecolor='white', alpha=0.0, edgecolor='none'));
+
+plt.savefig('sampled-vs-tddft-fields-2-um-high-wide.pdf', bbox_inches='tight');
+plt.savefig('sampled-vs-tddft-fields-2-um-high-wide.png', bbox_inches='tight', dpi=300);
 ```
