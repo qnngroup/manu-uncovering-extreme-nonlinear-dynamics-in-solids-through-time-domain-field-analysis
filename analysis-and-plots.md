@@ -86,7 +86,8 @@ t_2_low = tddft_data_2_low['t']
 t_2_low_fs = t_2_low*1e15/pca.tcon #time in fs for convenience
 J_2_low = tddft_data_2_low['J']
 
-#Now we want to load the corresponding semiclassical data
+#Now we want to load the corresponding semiclassical data 
+#for the low-intensity case with the 2-um driver.
 filename = './SIMULATION-DATA/Semiclassical model with TDDFT bandstructure/2-um F=0.001067605/Time_and_current.txt'
 t_2_low_semi_data = load.loadCurrents(filename)
 t_2_low_semi = np.squeeze(t_2_low_semi_data['t'])
@@ -121,7 +122,11 @@ J_2p3_low = tddft_data_2p3_low['J']
 # display('Intensity ' + '{:.2e}'.format(tddft_data['I_peak_W_cm2']) + ' W/cm^2')
 ```
 
+## TDDFT Spectra Comparison
+
 ```{code-cell} ipython3
+:tags: []
+
 fig = plt.figure()
 fig.set_size_inches(7, 5)
 
@@ -270,76 +275,6 @@ plt.xlim(70, 120)
 plt.ylim(0, 1);
 
 plt.savefig('time-domain-2-um-low.pdf', bbox_inches='tight');
-```
-
-```{code-cell} ipython3
-fig = plt.figure()
-fig.set_size_inches(8, 10)
-
-# -- All Harmonics -- 
-ax1 = fig.add_subplot(2, 1, 1)
-
-ax1.plot(tddft_data_2_low['t_drive']*1e15/pca.tcon, 
-         tddft_data_2_low['F_drive']**2, 
-         label=r'$F_\mathrm{drive}$')
-ax1.plot(tddft_data_2_low['t_drive']*1e15/pca.tcon, 
-         tddft_data_2_low['A_drive']**2, 
-         label=r'$A_\mathrm{drive}$')
-# ax1.plot(tddft_data_2_low['t']*1e15/pca.tcon, (tddft_data_2_low['F_gen']/tddft_data_2_low['F_gen'].max())**2)
-
-harm_start = 2
-harm_end = 40
-F_gen_region, F_gen_region_f = load.cutSpectralRegion(F_data_2_low_semi['w_norm'], 
-                                                    F_data_2_low_semi['F_gen_f'], 
-                                                    harm_start, harm_end)
-ax1.plot(t_2_low_semi_fs, (F_gen_region/np.abs(F_gen_region).max())**2, label='Semiclassical (All HO)')
-
-harm_start = 2
-harm_end = 8
-F_gen_region, F_gen_region_f = load.cutSpectralRegion(tddft_data_2_low['w_norm'], 
-                                                    tddft_data_2_low['F_gen_f'], 
-                                                    harm_start, harm_end)
-ax1.plot(t_2_low_fs, (F_gen_region/np.abs(F_gen_region).max())**2, label='TDDFT (HO 3-7)')
-
-#Labeling and look
-plt.text(0.99, 0.925, 'All HO (a)', 
-         horizontalalignment='right',
-         verticalalignment='center', 
-         transform=ax1.transAxes,
-         fontsize=14,
-         bbox=dict(facecolor='white', alpha=0.75, edgecolor='none'))
-plt.legend(fontsize=14, loc='upper left')
-plt.ylabel('Squared Field (arb. units)', fontsize=14)
-plt.xlabel('Time (fs)', fontsize=14)
-plt.tick_params(labelsize=14)
-plt.xlim(80, 110)
-plt.ylim(0, 1.25)
-
-# -- HO 3-7 -- 
-ax2 = fig.add_subplot(2, 1, 2)
-
-#Semiclassical data for comparison...
-ax2.semilogy(F_data_2_low_semi['w_norm'], 
-             np.abs(F_data_2_low_semi['F_gen_f'])**2*700,
-            label=u'Semiclassical',
-             color='tab:green',
-            linewidth=2.0)
-
-ax2.semilogy(tddft_data_2_low['w_norm'], 
-             np.abs(tddft_data_2_low['F_gen_f'])**2,
-            label=u'TDDFT',
-             color='tab:red',
-            linewidth=2.0)
-
-plt.xlim(0, 25)
-plt.xlabel('Harmonic Order', fontsize=14)
-plt.ylabel('Intensity (arb. unit)', fontsize=14)
-plt.ylim(1e-5, 1e8)
-plt.legend(fontsize=13)
-plt.tick_params(labelsize=14)
-
-
-plt.savefig('tddft-semiclassical-comparison-2-um-low.pdf', bbox_inches='tight');
 ```
 
 ### 2-um -- 5e10 W/cm2
@@ -558,6 +493,78 @@ plt.xlim(80, 130)
 plt.ylim(0, 1.1);
 
 plt.savefig('time-domain-2p3-um-low.pdf', bbox_inches='tight');
+```
+
+## Comparison of TDDFT with Semiclassical Model
+
+```{code-cell} ipython3
+fig = plt.figure()
+fig.set_size_inches(8, 7)
+
+# -- All Harmonics -- 
+ax1 = fig.add_subplot(2, 1, 1)
+
+ax1.plot(tddft_data_2_low['t_drive']*1e15/pca.tcon, 
+         tddft_data_2_low['F_drive']**2, 
+         label=r'$F_\mathrm{drive}$')
+ax1.plot(tddft_data_2_low['t_drive']*1e15/pca.tcon, 
+         tddft_data_2_low['A_drive']**2, 
+         label=r'$A_\mathrm{drive}$')
+# ax1.plot(tddft_data_2_low['t']*1e15/pca.tcon, (tddft_data_2_low['F_gen']/tddft_data_2_low['F_gen'].max())**2)
+
+harm_start = 2
+harm_end = 40
+F_gen_region, F_gen_region_f = load.cutSpectralRegion(F_data_2_low_semi['w_norm'], 
+                                                    F_data_2_low_semi['F_gen_f'], 
+                                                    harm_start, harm_end)
+ax1.plot(t_2_low_semi_fs, (F_gen_region/np.abs(F_gen_region).max())**2, label='Semiclassical (All HO)')
+
+harm_start = 2
+harm_end = 8
+F_gen_region, F_gen_region_f = load.cutSpectralRegion(tddft_data_2_low['w_norm'], 
+                                                    tddft_data_2_low['F_gen_f'], 
+                                                    harm_start, harm_end)
+ax1.plot(t_2_low_fs, (F_gen_region/np.abs(F_gen_region).max())**2, label='TDDFT (HO 3-7)')
+
+#Labeling and look
+plt.text(0.99, 0.925, 'All HO (a)', 
+         horizontalalignment='right',
+         verticalalignment='center', 
+         transform=ax1.transAxes,
+         fontsize=14,
+         bbox=dict(facecolor='white', alpha=0.75, edgecolor='none'))
+plt.legend(fontsize=14, loc='upper left')
+plt.ylabel('Squared Field (arb. units)', fontsize=14)
+plt.xlabel('Time (fs)', fontsize=14)
+plt.tick_params(labelsize=14)
+plt.xlim(80, 110)
+plt.ylim(0, 1.25)
+
+# -- HO 3-7 -- 
+ax2 = fig.add_subplot(2, 1, 2)
+
+#Semiclassical data for comparison...
+ax2.semilogy(F_data_2_low_semi['w_norm'], 
+             np.abs(F_data_2_low_semi['F_gen_f'])**2*700,
+            label=u'Semiclassical',
+             color='tab:green',
+            linewidth=2.0)
+
+ax2.semilogy(tddft_data_2_low['w_norm'], 
+             np.abs(tddft_data_2_low['F_gen_f'])**2,
+            label=u'TDDFT',
+             color='tab:red',
+            linewidth=2.0)
+
+plt.xlim(0, 25)
+plt.xlabel('Harmonic Order', fontsize=14)
+plt.ylabel('Intensity (arb. unit)', fontsize=14)
+plt.ylim(1e-5, 1e8)
+plt.legend(fontsize=13)
+plt.tick_params(labelsize=14)
+
+
+plt.savefig('tddft-semiclassical-comparison-2-um-low.pdf', bbox_inches='tight');
 ```
 
 ## Sampling Simulations and Analysis
