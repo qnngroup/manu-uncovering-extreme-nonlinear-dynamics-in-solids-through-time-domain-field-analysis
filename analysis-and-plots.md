@@ -5,14 +5,14 @@ jupytext:
     extension: .md
     format_name: myst
     format_version: 0.13
-    jupytext_version: 1.13.8
+    jupytext_version: 1.11.5
 kernelspec:
   display_name: Python 3 (ipykernel)
   language: python
   name: python3
 ---
 
-+++ {"jp-MarkdownHeadingCollapsed": true, "tags": []}
++++ {"tags": []}
 
 # Latex Headers
 
@@ -21,6 +21,15 @@ Latex headers are below:
 $$\newcommand{\ket}[1]{\left|{#1}\right\rangle}$$
 $$\newcommand{\bra}[1]{\left\langle{#1}\right|}$$
 $$\newcommand{\braket}[2]{\left\langle{#1}\middle|{#2}\right\rangle}$$
+
+```{code-cell} ipython3
+width = 70 #Width as a percentage of the screen
+
+from IPython.display import display, HTML
+display(HTML("<style>.jp-CodeCell .jp-Cell-inputWrapper { width: "+str(width)+"% !important;  margin: 0 auto; }</style>"))
+display(HTML("<style>.jp-MarkdownCell .jp-Cell-inputWrapper { width: "+str(width)+"% !important;  margin: 0 auto; }</style>"))
+display(HTML("<style>.jp-Cell-outputWrapper { width: "+str(width)+"% !important;  margin: 0 auto; }</style>"))
+```
 
 +++ {"incorrectly_encoded_metadata": "tags=[] jp-MarkdownHeadingCollapsed=true tags=[] jp-MarkdownHeadingCollapsed=true", "tags": []}
 
@@ -77,6 +86,14 @@ t_2_low = tddft_data_2_low['t']
 t_2_low_fs = t_2_low*1e15/pca.tcon #time in fs for convenience
 J_2_low = tddft_data_2_low['J']
 
+#Now we want to load the corresponding semiclassical data
+filename = './SIMULATION-DATA/Semiclassical model with TDDFT bandstructure/2-um F=0.001067605/Time_and_current.txt'
+t_2_low_semi_data = load.loadCurrents(filename)
+t_2_low_semi = np.squeeze(t_2_low_semi_data['t'])
+t_2_low_semi_fs = t_2_low_semi*1e15/pca.tcon #time in fs for convenience
+J_2_low_semi = np.squeeze(t_2_low_semi_data['Jz'])
+F_data_2_low_semi = load.currentsToFields(w0, t_2_low_semi, J_2_low_semi)
+
 #-- Now load the data and process it... this is the same for each file
 F_peak_string = '0.001193619'
 folder = './SIMULATION-DATA/TDDFT-MODELS/BG-3.3eV-2-um-drive/Reference_f_' + F_peak_string + '_n_30'
@@ -108,25 +125,34 @@ J_2p3_low = tddft_data_2p3_low['J']
 fig = plt.figure()
 fig.set_size_inches(7, 5)
 
-plt.semilogy(tddft_data_2_low['w_norm'], 
-             np.abs(tddft_data_2_low['F_gen_f']),
+
+#Semiclassical data for comparison...
+plt.semilogy(F_data_2_low_semi['w_norm'], 
+             np.abs(F_data_2_low_semi['F_gen_f'])**2*700,
             label=u'2-\u03BCm' + r' $4\times10^{10}$ W/cm${}^2$',
             linewidth=2.0)
 
+plt.semilogy(tddft_data_2_low['w_norm'], 
+             np.abs(tddft_data_2_low['F_gen_f'])**2,
+            label=u'2-\u03BCm' + r' $4\times10^{10}$ W/cm${}^2$',
+            linewidth=2.0)
+
+
+
 plt.semilogy(tddft_data_2_high['w_norm'], 
-             np.abs(tddft_data_2_high['F_gen_f'])*100, 
+             np.abs(tddft_data_2_high['F_gen_f'])**2*5000, 
             label=u'2-\u03BCm' + r' $5\times10^{10}$ W/cm${}^2$',
             linewidth=2.0)
 
 plt.semilogy(tddft_data_2p3_low['w_norm'], 
-             np.abs(tddft_data_2p3_low['F_gen_f'])*1e4,
+             np.abs(tddft_data_2p3_low['F_gen_f'])**2*5e6,
             label=u'2.3-\u03BCm' + r' $4\times10^{10}$ W/cm${}^2$',
             linewidth=2.0)
 
 plt.xlim(0, 25)
 plt.xlabel('Harmonic Order', fontsize=14)
 plt.ylabel('Intensity (arb. unit)', fontsize=14)
-plt.ylim(1e-2, 1e9)
+plt.ylim(1e-3, 1e15)
 plt.legend(fontsize=13)
 plt.tick_params(labelsize=14)
 
@@ -244,6 +270,76 @@ plt.xlim(70, 120)
 plt.ylim(0, 1);
 
 plt.savefig('time-domain-2-um-low.pdf', bbox_inches='tight');
+```
+
+```{code-cell} ipython3
+fig = plt.figure()
+fig.set_size_inches(8, 10)
+
+# -- All Harmonics -- 
+ax1 = fig.add_subplot(2, 1, 1)
+
+ax1.plot(tddft_data_2_low['t_drive']*1e15/pca.tcon, 
+         tddft_data_2_low['F_drive']**2, 
+         label=r'$F_\mathrm{drive}$')
+ax1.plot(tddft_data_2_low['t_drive']*1e15/pca.tcon, 
+         tddft_data_2_low['A_drive']**2, 
+         label=r'$A_\mathrm{drive}$')
+# ax1.plot(tddft_data_2_low['t']*1e15/pca.tcon, (tddft_data_2_low['F_gen']/tddft_data_2_low['F_gen'].max())**2)
+
+harm_start = 2
+harm_end = 40
+F_gen_region, F_gen_region_f = load.cutSpectralRegion(F_data_2_low_semi['w_norm'], 
+                                                    F_data_2_low_semi['F_gen_f'], 
+                                                    harm_start, harm_end)
+ax1.plot(t_2_low_semi_fs, (F_gen_region/np.abs(F_gen_region).max())**2, label='Semiclassical HH Fields')
+
+harm_start = 2
+harm_end = 40
+F_gen_region, F_gen_region_f = load.cutSpectralRegion(tddft_data_2_low['w_norm'], 
+                                                    tddft_data_2_low['F_gen_f'], 
+                                                    harm_start, harm_end)
+ax1.plot(t_2_low_fs, (F_gen_region/np.abs(F_gen_region).max())**2, label='TDDFT HH Fields')
+
+#Labeling and look
+plt.text(0.99, 0.925, 'All HO (a)', 
+         horizontalalignment='right',
+         verticalalignment='center', 
+         transform=ax1.transAxes,
+         fontsize=14,
+         bbox=dict(facecolor='white', alpha=0.75, edgecolor='none'))
+plt.legend(fontsize=14, loc='upper left')
+plt.ylabel('Squared Field (arb. units)', fontsize=14)
+plt.xlabel('Time (fs)', fontsize=14)
+plt.tick_params(labelsize=14)
+plt.xlim(80, 110)
+plt.ylim(0, 1.25)
+
+# -- HO 3-7 -- 
+ax2 = fig.add_subplot(2, 1, 2)
+
+#Semiclassical data for comparison...
+ax2.semilogy(F_data_2_low_semi['w_norm'], 
+             np.abs(F_data_2_low_semi['F_gen_f'])**2*700,
+            label=u'Semiclassical',
+             color='tab:green',
+            linewidth=2.0)
+
+ax2.semilogy(tddft_data_2_low['w_norm'], 
+             np.abs(tddft_data_2_low['F_gen_f'])**2,
+            label=u'TDDFT',
+             color='tab:red',
+            linewidth=2.0)
+
+plt.xlim(0, 25)
+plt.xlabel('Harmonic Order', fontsize=14)
+plt.ylabel('Intensity (arb. unit)', fontsize=14)
+plt.ylim(1e-5, 1e8)
+plt.legend(fontsize=13)
+plt.tick_params(labelsize=14)
+
+
+plt.savefig('tddft-semiclassical-comparison-2-um-low.pdf', bbox_inches='tight');
 ```
 
 ### 2-um -- 5e10 W/cm2

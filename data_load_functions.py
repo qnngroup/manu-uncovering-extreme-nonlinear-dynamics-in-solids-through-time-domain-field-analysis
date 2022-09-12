@@ -10,20 +10,20 @@ from scipy.signal import tukey
 
 #Function that loads the fields into a library for convenience.
 # -- This enables me to load many csv files with all variables structured inside dictionaries
-def loadFields(filename):
+def loadCurrents(filename):
   """
   Custom function to load the fields from the semiclassical HHG simulations from Simon.  
   """
   data = np.loadtxt(filename, delimiter=',', skiprows=0)
   t = data[:, 0].squeeze()
-  Ex = data[:, 1].squeeze()
-  Ey = data[:, 2].squeeze()
-  Ez = data[:, 3].squeeze()
+  Jx = data[:, 1].squeeze()
+  Jy = data[:, 2].squeeze()
+  Jz = data[:, 3].squeeze()
 
   fields = {'t': t,
-            'Ex': Ex,
-            'Ey': Ey,
-            'Ez': Ez}
+            'Jx': Jx,
+            'Jy': Jy,
+            'Jz': Jz}
 
   return fields
 
