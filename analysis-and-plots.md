@@ -292,14 +292,14 @@ harm_end = 40
 F_gen_region, F_gen_region_f = load.cutSpectralRegion(F_data_2_low_semi['w_norm'], 
                                                     F_data_2_low_semi['F_gen_f'], 
                                                     harm_start, harm_end)
-ax1.plot(t_2_low_semi_fs, (F_gen_region/np.abs(F_gen_region).max())**2, label='Semiclassical HH Fields')
+ax1.plot(t_2_low_semi_fs, (F_gen_region/np.abs(F_gen_region).max())**2, label='Semiclassical (All HO)')
 
 harm_start = 2
-harm_end = 40
+harm_end = 8
 F_gen_region, F_gen_region_f = load.cutSpectralRegion(tddft_data_2_low['w_norm'], 
                                                     tddft_data_2_low['F_gen_f'], 
                                                     harm_start, harm_end)
-ax1.plot(t_2_low_fs, (F_gen_region/np.abs(F_gen_region).max())**2, label='TDDFT HH Fields')
+ax1.plot(t_2_low_fs, (F_gen_region/np.abs(F_gen_region).max())**2, label='TDDFT (HO 3-7)')
 
 #Labeling and look
 plt.text(0.99, 0.925, 'All HO (a)', 
