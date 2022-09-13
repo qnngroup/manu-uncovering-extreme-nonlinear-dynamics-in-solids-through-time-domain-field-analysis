@@ -499,7 +499,7 @@ plt.savefig('time-domain-2p3-um-low.pdf', bbox_inches='tight');
 
 ```{code-cell} ipython3
 fig = plt.figure()
-fig.set_size_inches(8, 7)
+fig.set_size_inches(8, 8)
 
 # -- All Harmonics -- 
 ax1 = fig.add_subplot(2, 1, 1)
@@ -527,18 +527,12 @@ F_gen_region, F_gen_region_f = load.cutSpectralRegion(tddft_data_2_low['w_norm']
 ax1.plot(t_2_low_fs, (F_gen_region/np.abs(F_gen_region).max())**2, label='TDDFT (HO 3-7)')
 
 #Labeling and look
-plt.text(0.99, 0.925, 'All HO (a)', 
-         horizontalalignment='right',
-         verticalalignment='center', 
-         transform=ax1.transAxes,
-         fontsize=14,
-         bbox=dict(facecolor='white', alpha=0.75, edgecolor='none'))
 plt.legend(fontsize=14, loc='upper left')
 plt.ylabel('Squared Field (arb. units)', fontsize=14)
 plt.xlabel('Time (fs)', fontsize=14)
 plt.tick_params(labelsize=14)
-plt.xlim(80, 110)
-plt.ylim(0, 1.25)
+plt.xlim(70, 120)
+plt.ylim(0, 1.4)
 
 # -- HO 3-7 -- 
 ax2 = fig.add_subplot(2, 1, 2)
