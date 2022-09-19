@@ -132,10 +132,10 @@ fig.set_size_inches(7, 5)
 
 
 #Semiclassical data for comparison...
-plt.semilogy(F_data_2_low_semi['w_norm'], 
-             np.abs(F_data_2_low_semi['F_gen_f'])**2*700,
-            label=u'2-\u03BCm' + r' $4\times10^{10}$ W/cm${}^2$',
-            linewidth=2.0)
+# plt.semilogy(F_data_2_low_semi['w_norm'], 
+#              np.abs(F_data_2_low_semi['F_gen_f'])**2*700,
+#             label=u'2-\u03BCm' + r' $4\times10^{10}$ W/cm${}^2$',
+#             linewidth=2.0)
 
 plt.semilogy(tddft_data_2_low['w_norm'], 
              np.abs(tddft_data_2_low['F_gen_f'])**2,
