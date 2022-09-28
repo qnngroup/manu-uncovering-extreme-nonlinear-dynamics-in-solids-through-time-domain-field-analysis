@@ -567,7 +567,7 @@ plt.savefig('tddft-semiclassical-comparison-2-um-low.pdf', bbox_inches='tight');
 
 The purpose of the following is to compare the actual fields to the result one would obtain via sampling.
 
-Currently the sampled response assumes a flat bandwidth response from the antenna.  We know this is not true, but can be further corrected for in a similar way to the spectral correction below.  
+Currently the sampled response assumes a flat bandwidth response from the antenna.  This is to make it currently agnostic of the precise antenna resonance and material.  In reality, this could always be accounted for.   
 
 First we need to calculate the cross correlation of the current response of the sampler.
 
