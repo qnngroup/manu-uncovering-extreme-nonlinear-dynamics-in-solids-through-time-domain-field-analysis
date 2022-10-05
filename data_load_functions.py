@@ -27,6 +27,22 @@ def loadCurrents(filename):
 
   return fields
 
+#Function that loads the fields into a library for convenience.
+# -- This enables me to load many csv files with all variables structured inside dictionaries
+def loadCurrents1D(filename):
+  """
+  Custom function to load the fields from the semiclassical HHG simulations from Simon. 
+  Assumes only one-dimensional currents.
+  """
+  data = np.loadtxt(filename, delimiter=',', skiprows=0)
+  t = data[:, 0].squeeze()
+  J = data[:, 1].squeeze()
+
+  fields = {'t': t,
+            'J': J}
+
+  return fields
+
 
 #Function taht loads the real-space trajectories into a library for convenience.
 # -- This enables me to load many csv files with all variables structured inside dictionaries

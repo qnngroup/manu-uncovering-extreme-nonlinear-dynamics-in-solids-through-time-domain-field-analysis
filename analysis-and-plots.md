@@ -5,7 +5,7 @@ jupytext:
     extension: .md
     format_name: myst
     format_version: 0.13
-    jupytext_version: 1.11.5
+    jupytext_version: 1.13.8
 kernelspec:
   display_name: Python 3 (ipykernel)
   language: python
@@ -88,11 +88,11 @@ J_2_low = tddft_data_2_low['J']
 
 #Now we want to load the corresponding semiclassical data 
 #for the low-intensity case with the 2-um driver.
-filename = './SIMULATION-DATA/Semiclassical model with TDDFT bandstructure/2-um F=0.001067605/Time_and_current.txt'
-t_2_low_semi_data = load.loadCurrents(filename)
+filename = './SIMULATION-DATA/Semiclassical model with TDDFT bandstructure/2-um F=0.001067605/Time_and_current_new_w_hole.txt'
+t_2_low_semi_data = load.loadCurrents1D(filename)
 t_2_low_semi = np.squeeze(t_2_low_semi_data['t'])
 t_2_low_semi_fs = t_2_low_semi*1e15/pca.tcon #time in fs for convenience
-J_2_low_semi = np.squeeze(t_2_low_semi_data['Jz'])
+J_2_low_semi = np.squeeze(t_2_low_semi_data['J'])
 F_data_2_low_semi = load.currentsToFields(w0, t_2_low_semi, J_2_low_semi)
 
 #-- Now load the data and process it... this is the same for each file
@@ -185,10 +185,10 @@ ax1 = fig.add_subplot(3, 1, 1)
 
 ax1.plot(tddft_data_2_low['t_drive']*1e15/pca.tcon, 
          tddft_data_2_low['F_drive']**2, 
-         label=r'$F_\mathrm{drive}$')
+         label=r'$E_\mathrm{D}$')
 ax1.plot(tddft_data_2_low['t_drive']*1e15/pca.tcon, 
          tddft_data_2_low['A_drive']**2, 
-         label=r'$A_\mathrm{drive}$')
+         label=r'$A_\mathrm{D}$')
 # ax1.plot(tddft_data_2_low['t']*1e15/pca.tcon, (tddft_data_2_low['F_gen']/tddft_data_2_low['F_gen'].max())**2)
 
 harm_start = 2
@@ -199,7 +199,7 @@ F_gen_region, F_gen_region_f = load.cutSpectralRegion(tddft_data_2_low['w_norm']
 ax1.plot(t_2_low_fs, (F_gen_region/np.abs(F_gen_region).max())**2, label='HH Fields')
 
 #Labeling and look
-plt.text(0.99, 0.925, 'All HO (a)', 
+plt.text(0.99, 0.925, r'HO $\geq 2$ (a)', 
          horizontalalignment='right',
          verticalalignment='center', 
          transform=ax1.transAxes,
@@ -217,10 +217,10 @@ ax2 = fig.add_subplot(3, 1, 2)
 
 ax2.plot(tddft_data_2_low['t_drive']*1e15/pca.tcon, 
          tddft_data_2_low['F_drive']**2, 
-         label=r'$F_\mathrm{drive}$')
+         label=r'$E_\mathrm{D}$')
 ax2.plot(tddft_data_2_low['t_drive']*1e15/pca.tcon, 
          tddft_data_2_low['A_drive']**2, 
-         label=r'$A_\mathrm{drive}$')
+         label=r'$A_\mathrm{D}$')
 # ax1.plot(tddft_data_2_low['t']*1e15/pca.tcon, (tddft_data_2_low['F_gen']/tddft_data_2_low['F_gen'].max())**2)
 
 harm_start = 2
@@ -248,10 +248,10 @@ ax3 = fig.add_subplot(3, 1, 3)
 
 ax3.plot(tddft_data_2_low['t_drive']*1e15/pca.tcon, 
          tddft_data_2_low['F_drive']**2, 
-         label=r'$F_\mathrm{drive}$')
+         label=r'$E_\mathrm{D}$')
 ax3.plot(tddft_data_2_low['t_drive']*1e15/pca.tcon, 
          tddft_data_2_low['A_drive']**2, 
-         label=r'$A_\mathrm{drive}$')
+         label=r'$A_\mathrm{D}$')
 # ax1.plot(tddft_data_2_low['t']*1e15/pca.tcon, (tddft_data_2_low['F_gen']/tddft_data_2_low['F_gen'].max())**2)
 
 harm_start = 6
@@ -288,10 +288,10 @@ ax1 = fig.add_subplot(3, 1, 1)
 
 ax1.plot(tddft_data_2_high['t_drive']*1e15/pca.tcon, 
          tddft_data_2_high['F_drive']**2, 
-         label=r'$F_\mathrm{drive}$')
+         label=r'$E_\mathrm{D}$')
 ax1.plot(tddft_data_2_high['t_drive']*1e15/pca.tcon, 
          tddft_data_2_high['A_drive']**2, 
-         label=r'$A_\mathrm{drive}$')
+         label=r'$A_\mathrm{D}$')
 # ax1.plot(tddft_data_2_high['t']*1e15/pca.tcon, (tddft_data_2_high['F_gen']/tddft_data_2_high['F_gen'].max())**2)
 
 harm_start = 2
@@ -302,7 +302,7 @@ F_gen_region, F_gen_region_f = load.cutSpectralRegion(tddft_data_2_high['w_norm'
 ax1.plot(t_2_high_fs, (F_gen_region/np.abs(F_gen_region).max())**2, label='HH Fields')
 
 #Labeling and look
-plt.text(0.99, 0.925, 'All HO (a)', 
+plt.text(0.99, 0.925, r'HO $\geq 2$ (a)', 
          horizontalalignment='right',
          verticalalignment='center', 
          transform=ax1.transAxes,
@@ -332,10 +332,10 @@ ax2 = fig.add_subplot(3, 1, 2)
 
 ax2.plot(tddft_data_2_high['t_drive']*1e15/pca.tcon, 
          tddft_data_2_high['F_drive']**2, 
-         label=r'$F_\mathrm{drive}$')
+         label=r'$E_\mathrm{D}$')
 ax2.plot(tddft_data_2_high['t_drive']*1e15/pca.tcon, 
          tddft_data_2_high['A_drive']**2, 
-         label=r'$A_\mathrm{drive}$')
+         label=r'$A_\mathrm{D}$')
 # ax1.plot(tddft_data_2_high['t']*1e15/pca.tcon, (tddft_data_2_high['F_gen']/tddft_data_2_high['F_gen'].max())**2)
 
 harm_start = 2
@@ -363,10 +363,10 @@ ax3 = fig.add_subplot(3, 1, 3)
 
 ax3.plot(tddft_data_2_high['t_drive']*1e15/pca.tcon, 
          tddft_data_2_high['F_drive']**2, 
-         label=r'$F_\mathrm{drive}$')
+         label=r'$E_\mathrm{D}$')
 ax3.plot(tddft_data_2_high['t_drive']*1e15/pca.tcon, 
          tddft_data_2_high['A_drive']**2, 
-         label=r'$A_\mathrm{drive}$')
+         label=r'$A_\mathrm{D}$')
 # ax1.plot(tddft_data_2_high['t']*1e15/pca.tcon, (tddft_data_2_high['F_gen']/tddft_data_2_high['F_gen'].max())**2)
 
 harm_start = 6
@@ -403,10 +403,10 @@ ax1 = fig.add_subplot(3, 1, 1)
 
 ax1.plot(tddft_data_2p3_low['t_drive']*1e15/pca.tcon, 
          tddft_data_2p3_low['F_drive']**2, 
-         label=r'$F_\mathrm{drive}$')
+         label=r'$E_\mathrm{D}$')
 ax1.plot(tddft_data_2p3_low['t_drive']*1e15/pca.tcon, 
          tddft_data_2p3_low['A_drive']**2, 
-         label=r'$A_\mathrm{drive}$')
+         label=r'$A_\mathrm{D}$')
 # ax1.plot(tddft_data_2p3_low['t']*1e15/pca.tcon, (tddft_data_2p3_low['F_gen']/tddft_data_2p3_low['F_gen'].max())**2)
 
 harm_start = 2
@@ -417,7 +417,7 @@ F_gen_region, F_gen_region_f = load.cutSpectralRegion(tddft_data_2p3_low['w_norm
 ax1.plot(t_2p3_low_fs, (F_gen_region/np.abs(F_gen_region).max())**2, label='HH Fields')
 
 #Labeling and look
-plt.text(0.99, 0.925, 'All HO (a)', 
+plt.text(0.99, 0.925, r'HO $\geq 2$ (a)', 
          horizontalalignment='right',
          verticalalignment='center', 
          transform=ax1.transAxes,
@@ -435,10 +435,10 @@ ax2 = fig.add_subplot(3, 1, 2)
 
 ax2.plot(tddft_data_2p3_low['t_drive']*1e15/pca.tcon, 
          tddft_data_2p3_low['F_drive']**2, 
-         label=r'$F_\mathrm{drive}$')
+         label=r'$E_\mathrm{D}$')
 ax2.plot(tddft_data_2p3_low['t_drive']*1e15/pca.tcon, 
          tddft_data_2p3_low['A_drive']**2, 
-         label=r'$A_\mathrm{drive}$')
+         label=r'$A_\mathrm{D}$')
 # ax1.plot(tddft_data_2p3_low['t']*1e15/pca.tcon, (tddft_data_2p3_low['F_gen']/tddft_data_2p3_low['F_gen'].max())**2)
 
 harm_start = 2
@@ -466,10 +466,10 @@ ax3 = fig.add_subplot(3, 1, 3)
 
 ax3.plot(tddft_data_2p3_low['t_drive']*1e15/pca.tcon, 
          tddft_data_2p3_low['F_drive']**2, 
-         label=r'$F_\mathrm{drive}$')
+         label=r'$E_\mathrm{D}$')
 ax3.plot(tddft_data_2p3_low['t_drive']*1e15/pca.tcon, 
          tddft_data_2p3_low['A_drive']**2, 
-         label=r'$A_\mathrm{drive}$')
+         label=r'$A_\mathrm{D}$')
 # ax1.plot(tddft_data_2p3_low['t']*1e15/pca.tcon, (tddft_data_2p3_low['F_gen']/tddft_data_2p3_low['F_gen'].max())**2)
 
 harm_start = 6
@@ -506,10 +506,10 @@ ax1 = fig.add_subplot(2, 1, 1)
 
 ax1.plot(tddft_data_2_low['t_drive']*1e15/pca.tcon, 
          tddft_data_2_low['F_drive']**2, 
-         label=r'$F_\mathrm{drive}$')
+         label=r'$E_\mathrm{D}$')
 ax1.plot(tddft_data_2_low['t_drive']*1e15/pca.tcon, 
          tddft_data_2_low['A_drive']**2, 
-         label=r'$A_\mathrm{drive}$')
+         label=r'$A_\mathrm{D}$')
 # ax1.plot(tddft_data_2_low['t']*1e15/pca.tcon, (tddft_data_2_low['F_gen']/tddft_data_2_low['F_gen'].max())**2)
 
 harm_start = 2
@@ -517,7 +517,7 @@ harm_end = 40
 F_gen_region, F_gen_region_f = load.cutSpectralRegion(F_data_2_low_semi['w_norm'], 
                                                     F_data_2_low_semi['F_gen_f'], 
                                                     harm_start, harm_end)
-ax1.plot(t_2_low_semi_fs, (F_gen_region/np.abs(F_gen_region).max())**2, label='Semiclassical (All HO)')
+ax1.plot(t_2_low_semi_fs, (F_gen_region/np.abs(F_gen_region).max())**2, label=r'Semiclassical (HO $\geq 2$)')
 
 harm_start = 2
 harm_end = 8
@@ -596,10 +596,10 @@ phi_ce_drive = np.pi #Carrier envelope phase (rad)
 tau_range = np.arange(-60, 150, 0.1) #Delay range (fs)
 J = np.zeros(tau_range.shape) # Vector for output current density
 
-F_max = 7 #Maximum driver field (V/nm)
+F_max = 7.5 #Maximum driver field (V/nm)
 phi = 5.1 #Work function of electron emitter (eV)
 
-sample_factor = 1e-4 #Field ratio between HHG and driver
+sample_factor = 1e-3/7.5 #Field ratio between HHG and driver
 F_0 = 0.0; #DC bias field value (V/nm)
 
 # -- End Settings -- 
@@ -699,12 +699,12 @@ H_sampler = H_sampler/np.max(np.abs(H_sampler))
 
 # -- Plot the sampler transfer-function: H_sampler
 fig = plt.figure()
-fig.set_size_inches(8, 4)
+fig.set_size_inches(4, 4)
 
 plt.plot(w_drive/np.pi/2, np.abs(H_sampler), linewidth=2.5)
-plt.xlim(0, 1)
+plt.xlim(0, 1.3)
 plt.xlabel('f (PHz)', fontsize=16)
-plt.ylabel('Sampler Response (normalized)', fontsize=16)
+plt.ylabel(r'$|\tilde{H}_\mathrm{Det}|$ (normalized)', fontsize=16)
 plt.tick_params(labelsize=16)
 
 fig.savefig('sampler-bandwidth-response.pdf', bbox_inches='tight')
@@ -716,11 +716,11 @@ fig.savefig('sampler-bandwidth-response.pdf', bbox_inches='tight')
 :tags: []
 
 fig = plt.figure()
-fig.set_size_inches(8, 4)
+fig.set_size_inches(4, 4)
 
 plt.plot(t_drive, J_drive/J_drive.max(), linewidth=2.5)
 plt.xlabel('t (fs)', fontsize=16)
-plt.ylabel('Current (normalized)', fontsize=16)
+plt.ylabel(r'$\Gamma(E_\mathrm{G}(t))$ (normalized)', fontsize=16)
 plt.tick_params(labelsize=16)
 plt.xlim(-10, 10)
 fig.savefig('sampler-current-response.pdf', bbox_inches='tight')
@@ -791,6 +791,7 @@ ax[k].plot(w_simulation/wc_drive, np.abs(simulation_f)/(np.abs(simulation_f)).ma
 
 ax[k].set_xlim(2.5, 10.5)
 ax[k].set_ylim(0, 1.3)
+
 ax[k].legend()
 ax[k].set_xlabel('$\omega/\omega_c$')
 ax[k].set_ylabel('Field Spectrum');
@@ -896,7 +897,7 @@ plt.plot(tau_range, (F_sampled_corrected/np.abs(F_sampled_corrected).max())**2,
          color='tab:red')
 plt.plot(tddft_data_2_high['t_drive']*1e15/pca.tcon - t_fs_center, 
          tddft_data_2_high['F_drive']**2, 
-         label=r'$F_\mathrm{drive}$',
+         label=r'$E_\mathrm{D}$',
          color='tab:blue')
 
 
@@ -1024,7 +1025,7 @@ plt.plot(tau_range, (F_sampled_corrected/np.abs(F_sampled_corrected).max())**2,
          color='tab:red')
 plt.plot(tddft_data_2_high['t_drive']*1e15/pca.tcon - t_fs_center, 
          tddft_data_2_high['F_drive']**2, 
-         label=r'$F_\mathrm{drive}$',
+         label=r'$E_\mathrm{D}$',
          color='tab:blue')
 
 
@@ -1037,12 +1038,12 @@ plt.ylabel('Squared Field (arb. units)', fontsize=14)
 plt.tick_params(labelsize=14)
 
 #Labeling and look
-plt.text(0.99, 0.925, '(a)', 
-         horizontalalignment='right',
-         verticalalignment='center', 
-         transform=ax1.transAxes,
-         fontsize=14,
-         bbox=dict(facecolor='white', alpha=0.0, edgecolor='none'))
+# plt.text(0.99, 0.925, '(a)', 
+#          horizontalalignment='right',
+#          verticalalignment='center', 
+#          transform=ax1.transAxes,
+#          fontsize=14,
+#          bbox=dict(facecolor='white', alpha=0.0, edgecolor='none'))
 plt.text(0.20, 0.05, 'Intraband', 
          horizontalalignment='left',
          verticalalignment='bottom', 
@@ -1079,7 +1080,7 @@ ax2.set_xticks([3,5,7,9])
 photon_energy = f_harm*1e15*2*np.pi*pcSI.hbar/pcSI.evcon #Find photon energy of driver in eV
 plt.axvline(BG/photon_energy, linewidth=2, color='white');
 
-plt.text(0.97, 0.925, 'TDDFT HH Fields (b)', 
+plt.text(0.97, 0.925, 'TDDFT HH Fields', 
          horizontalalignment='right',
          verticalalignment='center', 
          transform=ax2.transAxes,
@@ -1115,7 +1116,7 @@ ax3.set_xticks([3,5,7,9])
 photon_energy = f_harm*1e15*2*np.pi*pcSI.hbar/pcSI.evcon #Find photon energy of driver in eV
 plt.axvline(BG/photon_energy, linewidth=2, color='white')
 
-plt.text(0.97, 0.925, 'Sampled HH Fields (c)', 
+plt.text(0.97, 0.925, 'Sampled HH Fields', 
          horizontalalignment='right',
          verticalalignment='center', 
          transform=ax3.transAxes,
