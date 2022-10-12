@@ -88,7 +88,7 @@ J_2_low = tddft_data_2_low['J']
 
 #Now we want to load the corresponding semiclassical data 
 #for the low-intensity case with the 2-um driver.
-filename = './SIMULATION-DATA/Semiclassical model with TDDFT bandstructure/2-um F=0.001067605/Time_and_current_new_w_hole.txt'
+filename = './SIMULATION-DATA/Semiclassical model with TDDFT bandstructure/2-um F=0.001067605/Time_and_current_new.txt'
 t_2_low_semi_data = load.loadCurrents1D(filename)
 t_2_low_semi = np.squeeze(t_2_low_semi_data['t'])
 t_2_low_semi_fs = t_2_low_semi*1e15/pca.tcon #time in fs for convenience
@@ -142,8 +142,6 @@ plt.semilogy(tddft_data_2_low['w_norm'],
             label=u'2-\u03BCm' + r' $4\times10^{10}$ W/cm${}^2$',
             linewidth=2.0)
 
-
-
 plt.semilogy(tddft_data_2_high['w_norm'], 
              np.abs(tddft_data_2_high['F_gen_f'])**2*5000, 
             label=u'2-\u03BCm' + r' $5\times10^{10}$ W/cm${}^2$',
@@ -185,10 +183,10 @@ ax1 = fig.add_subplot(3, 1, 1)
 
 ax1.plot(tddft_data_2_low['t_drive']*1e15/pca.tcon, 
          tddft_data_2_low['F_drive']**2, 
-         label=r'$E_\mathrm{D}$')
+         label=r'$E_\mathrm{D}(t)^2$')
 ax1.plot(tddft_data_2_low['t_drive']*1e15/pca.tcon, 
          tddft_data_2_low['A_drive']**2, 
-         label=r'$A_\mathrm{D}$')
+         label=r'$A_\mathrm{D}(t)^2$')
 # ax1.plot(tddft_data_2_low['t']*1e15/pca.tcon, (tddft_data_2_low['F_gen']/tddft_data_2_low['F_gen'].max())**2)
 
 harm_start = 2
@@ -220,7 +218,7 @@ ax2.plot(tddft_data_2_low['t_drive']*1e15/pca.tcon,
          label=r'$E_\mathrm{D}$')
 ax2.plot(tddft_data_2_low['t_drive']*1e15/pca.tcon, 
          tddft_data_2_low['A_drive']**2, 
-         label=r'$A_\mathrm{D}$')
+         label=r'$A_\mathrm{D}(t)^2$')
 # ax1.plot(tddft_data_2_low['t']*1e15/pca.tcon, (tddft_data_2_low['F_gen']/tddft_data_2_low['F_gen'].max())**2)
 
 harm_start = 2
@@ -288,10 +286,10 @@ ax1 = fig.add_subplot(3, 1, 1)
 
 ax1.plot(tddft_data_2_high['t_drive']*1e15/pca.tcon, 
          tddft_data_2_high['F_drive']**2, 
-         label=r'$E_\mathrm{D}$')
+         label=r'$E_\mathrm{D}(t)^2$')
 ax1.plot(tddft_data_2_high['t_drive']*1e15/pca.tcon, 
          tddft_data_2_high['A_drive']**2, 
-         label=r'$A_\mathrm{D}$')
+         label=r'$A_\mathrm{D}(t)^2$')
 # ax1.plot(tddft_data_2_high['t']*1e15/pca.tcon, (tddft_data_2_high['F_gen']/tddft_data_2_high['F_gen'].max())**2)
 
 harm_start = 2
@@ -403,10 +401,10 @@ ax1 = fig.add_subplot(3, 1, 1)
 
 ax1.plot(tddft_data_2p3_low['t_drive']*1e15/pca.tcon, 
          tddft_data_2p3_low['F_drive']**2, 
-         label=r'$E_\mathrm{D}$')
+         label=r'$E_\mathrm{D}(t)^2$')
 ax1.plot(tddft_data_2p3_low['t_drive']*1e15/pca.tcon, 
          tddft_data_2p3_low['A_drive']**2, 
-         label=r'$A_\mathrm{D}$')
+         label=r'$A_\mathrm{D}(t)^2$')
 # ax1.plot(tddft_data_2p3_low['t']*1e15/pca.tcon, (tddft_data_2p3_low['F_gen']/tddft_data_2p3_low['F_gen'].max())**2)
 
 harm_start = 2
@@ -506,10 +504,10 @@ ax1 = fig.add_subplot(2, 1, 1)
 
 ax1.plot(tddft_data_2_low['t_drive']*1e15/pca.tcon, 
          tddft_data_2_low['F_drive']**2, 
-         label=r'$E_\mathrm{D}$')
+         label=r'$E_\mathrm{D}(t)^2$')
 ax1.plot(tddft_data_2_low['t_drive']*1e15/pca.tcon, 
          tddft_data_2_low['A_drive']**2, 
-         label=r'$A_\mathrm{D}$')
+         label=r'$A_\mathrm{D}(t)^2$')
 # ax1.plot(tddft_data_2_low['t']*1e15/pca.tcon, (tddft_data_2_low['F_gen']/tddft_data_2_low['F_gen'].max())**2)
 
 harm_start = 2
@@ -667,6 +665,7 @@ Next we plot the sampler bandwith response...
 ```{code-cell} ipython3
 # -- Get frequency representation of each pulse --
 #  - Note the suffix _f denotes fourier-transformed version of the variable.
+import matplotlib.ticker as ticker
 
 #Cross-correlation current:
 dt_J_corr = tau_range[1] - tau_range[0]
@@ -702,11 +701,20 @@ fig = plt.figure()
 fig.set_size_inches(4, 4)
 
 plt.plot(w_drive/np.pi/2, np.abs(H_sampler), linewidth=2.5)
-plt.xlim(0, 1.3)
+f_max = 9.5*wc_drive/2/np.pi # max frequency in PHz for plot
+plt.xlim(0, f_max)
 plt.xlabel('f (PHz)', fontsize=16)
 plt.ylabel(r'$|\tilde{H}_\mathrm{Det}|$ (normalized)', fontsize=16)
 plt.tick_params(labelsize=16)
 
+#Get Axes for positions...
+ax1 = plt.gca()
+ax2 = ax1.twiny()
+ax2.set_xlim([0, 2*np.pi*f_max/wc_drive])
+ax2.set_xlabel('Harmonic Order', fontsize=16)
+ax2.tick_params(labelsize=16)
+major_locator = ticker.FixedLocator([1, 3, 5, 7, 9])
+ax2.xaxis.set_major_locator(major_locator)
 fig.savefig('sampler-bandwidth-response.pdf', bbox_inches='tight')
 ```
 
@@ -1017,15 +1025,15 @@ t_range = 60
 t_fs_center = (t_fs[-1] + t_fs[0])/2.0
 
 plt.plot(t_fs_centered, (F_gen_region/np.abs(F_gen_region).max())**2, 
-         label='TDDFT HH Fields',
+         label=r'$E_\mathrm{sig}(t)$',
          color='tab:green',
          linewidth=3.0, alpha=0.6)
 plt.plot(tau_range, (F_sampled_corrected/np.abs(F_sampled_corrected).max())**2, 
-         label='Sampled HH Fields',
+         label=r'$E_\mathrm{sampled}(t)$',
          color='tab:red')
 plt.plot(tddft_data_2_high['t_drive']*1e15/pca.tcon - t_fs_center, 
          tddft_data_2_high['F_drive']**2, 
-         label=r'$E_\mathrm{D}$',
+         label=r'$E_\mathrm{D}(t)$',
          color='tab:blue')
 
 
@@ -1080,7 +1088,7 @@ ax2.set_xticks([3,5,7,9])
 photon_energy = f_harm*1e15*2*np.pi*pcSI.hbar/pcSI.evcon #Find photon energy of driver in eV
 plt.axvline(BG/photon_energy, linewidth=2, color='white');
 
-plt.text(0.97, 0.925, 'TDDFT HH Fields', 
+plt.text(0.97, 0.925, r'$E_\mathrm{sig}(t)$', 
          horizontalalignment='right',
          verticalalignment='center', 
          transform=ax2.transAxes,
@@ -1116,7 +1124,7 @@ ax3.set_xticks([3,5,7,9])
 photon_energy = f_harm*1e15*2*np.pi*pcSI.hbar/pcSI.evcon #Find photon energy of driver in eV
 plt.axvline(BG/photon_energy, linewidth=2, color='white')
 
-plt.text(0.97, 0.925, 'Sampled HH Fields', 
+plt.text(0.97, 0.925, r'$E_\mathrm{sampled}(t)$', 
          horizontalalignment='right',
          verticalalignment='center', 
          transform=ax3.transAxes,
