@@ -2,6 +2,8 @@
 
 Simulation data, figures, and analysis for "Uncovering Extreme Nonlinear Dynamics in Solids Through Time-Domain Field Analysis".
 
+Notes and code for data analysis and figure generation can be found in [[./analysis-and-plots.ipynb]].  
+
 [FIXME: Reference to the paper when submitted/accepted/posted to arXiv].
 
 
