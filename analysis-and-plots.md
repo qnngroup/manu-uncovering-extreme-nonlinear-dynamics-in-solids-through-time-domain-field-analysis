@@ -5,7 +5,7 @@ jupytext:
     extension: .md
     format_name: myst
     format_version: 0.13
-    jupytext_version: 1.13.8
+    jupytext_version: 1.11.5
 kernelspec:
   display_name: Python 3 (ipykernel)
   language: python
@@ -21,6 +21,12 @@ Latex headers are below:
 $$\newcommand{\ket}[1]{\left|{#1}\right\rangle}$$
 $$\newcommand{\bra}[1]{\left\langle{#1}\right|}$$
 $$\newcommand{\braket}[2]{\left\langle{#1}\middle|{#2}\right\rangle}$$
+
++++
+
+# Change Screen Width
+
+Some HTML code to tweak the screen width in Jupyter for nicer editing. 
 
 ```{code-cell} ipython3
 width = 70 #Width as a percentage of the screen
@@ -39,28 +45,34 @@ display(HTML("<style>.jp-Cell-outputWrapper { width: "+str(width)+"% !important;
 
  - Import all headers needed for the simulations in this notebook.  
  - This cell MUST be run first or none of the code below will work. 
- - We also define the convenience function `loadFields` for loading the simulated field data provided
+ - We also define the convenience function `loadFields` for loading the simulated field data
 
 ```{code-cell} ipython3
 %reset
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
-import physical_constants_atomic as pca
-import physical_constants_SI as pcSI
-import emission_rate_functions as FN
-import pulse_functions as pulses
-import data_load_functions as load
-import scipy.interpolate as interpolate
+import scipy.interpolate as interpolate 
 from scipy.signal import savgol_filter
 from scipy.signal import tukey
 from scipy.signal import spectrogram
 from scipy.signal import stft
+
+# Custom Python Files to Import
+import physical_constants_atomic as pca #Physical Conversions for Atomic Units
+import physical_constants_SI as pcSI #Physical Constants in SI units
+import emission_rate_functions as FN #Functions for calculating FN emission rates
+import pulse_functions as pulses #Convenience functions for creating pulses
+import data_load_functions as load #Convenience functions for loading simulated data
 ```
 
 +++ {"incorrectly_encoded_metadata": "jp-MarkdownHeadingCollapsed=true", "tags": []}
 
-## Load Data and Relevant Settings
+# Load Data and Relevant Settings
+
++++
+
+Below the stored simulated data is loaded for subsequent analysis and plot generation. 
 
 ```{code-cell} ipython3
 #-- Load key simulation parameters and generated current data --
@@ -114,15 +126,17 @@ tddft_data_2p3_low = load.loadTDDFTData(w0, F_peak, folder)
 t_2p3_low = tddft_data_2p3_low['t']
 t_2p3_low_fs = t_2p3_low*1e15/pca.tcon #time in fs for convenience
 J_2p3_low = tddft_data_2p3_low['J']
-
-
-#Cut a spectral region for analysis
-# F_gen_region, F_gen_region_f = load.cutSpectralRegion(tddft_data['w_norm'], tddft_data['F_gen_f'], harm_start, harm_end)
-
-# display('Intensity ' + '{:.2e}'.format(tddft_data['I_peak_W_cm2']) + ' W/cm^2')
 ```
 
-## TDDFT Spectra Comparison
+# TDDFT Spectra Comparison
+
++++
+
+The following generates a plot for comparing the spectra of the TDDFT for the three conditions studied:
+
+1. $\lambda = 2$ micrometers, $4\times10^{10}$ Watt/cm${}^2$
+2. $\lambda = 2$ micrometers, $5\times10^{10}$ Watt/cm${}^2$
+3. $\lambda = 2.3$ micrometers, $4\times10^{10}$ Watt/cm${}^2$
 
 ```{code-cell} ipython3
 :tags: []
@@ -162,17 +176,15 @@ plt.tick_params(labelsize=14)
 plt.savefig('spectra.pdf', bbox_inches='tight')
 ```
 
-## Time-Domain Fields
+# Time-Domain HHG Field Analysis
 
 +++
 
-Comparison of the nonlinear fields in the time-domain.  These HH fields are those from the chosen spectral region above.  
-
-For comparison, they are shown against both the vector potential and electric field of the driving waveform.
+The following code blocks generate plots for the time-domain analysis of TDDFT fields and comparison to semiclassical intraband models. 
 
 +++
 
-### 2-um -- 4e10 W/cm2
+## 2-um -- 4e10 W/cm2
 
 ```{code-cell} ipython3
 fig = plt.figure()
@@ -275,7 +287,7 @@ plt.ylim(0, 1);
 plt.savefig('time-domain-2-um-low.pdf', bbox_inches='tight');
 ```
 
-### 2-um -- 5e10 W/cm2
+## 2-um -- 5e10 W/cm2
 
 ```{code-cell} ipython3
 fig = plt.figure()
@@ -390,7 +402,7 @@ plt.ylim(0, 1.1);
 plt.savefig('time-domain-2-um-high.pdf', bbox_inches='tight');
 ```
 
-### 2.3-um -- 4e10 W/cm2
+## 2.3-um -- 4e10 W/cm2
 
 ```{code-cell} ipython3
 fig = plt.figure()
@@ -493,7 +505,11 @@ plt.ylim(0, 1.1);
 plt.savefig('time-domain-2p3-um-low.pdf', bbox_inches='tight');
 ```
 
-## Comparison of TDDFT with Semiclassical Model
+# Comparison of TDDFT with Semiclassical Model
+
++++
+
+The following compares the TDDFT and semiclassical intraband fields in the time-domain.  
 
 ```{code-cell} ipython3
 fig = plt.figure()
@@ -559,13 +575,19 @@ plt.tick_params(labelsize=14)
 plt.savefig('tddft-semiclassical-comparison-2-um-low.pdf', bbox_inches='tight');
 ```
 
-## Sampling Simulations and Analysis
+# Sampling Simulations and Analysis
 
 +++
 
 The purpose of the following is to compare the actual fields to the result one would obtain via sampling.
 
-Currently the sampled response assumes a flat bandwidth response from the antenna.  This is to make it currently agnostic of the precise antenna resonance and material.  In reality, this could always be accounted for.   
+Currently the sampled response assumes a flat electromagnetic response of the tunneling medium.  The tunneling medium is assumed to be a metal here.  The reason for this is to focus on the sampling limits of the tunneling process itself, and not other factos that are in part related to engineering of the structure of the medium.  
+
++++
+
+## Current cross-correlation: $I_\text{cc}(\tau)$
+
++++
 
 First we need to calculate the cross correlation of the current response of the sampler.
 
@@ -660,7 +682,13 @@ ax[0].set_xlabel('Time (fs)')
 ax[0].set_ylabel('Harmonic Field/Sampler Output (arb. units)')
 ```
 
-Next we plot the sampler bandwith response...
+## Sampler time-domain and bandwidth response
+
++++
+
+Here we plot the time-domain and bandwidth response of the generated current from the sampler. 
+
+First the frequency response...
 
 ```{code-cell} ipython3
 # -- Get frequency representation of each pulse --
@@ -718,7 +746,7 @@ ax2.xaxis.set_major_locator(major_locator)
 fig.savefig('sampler-bandwidth-response.pdf', bbox_inches='tight')
 ```
 
-... and time-domain response.
+... and then time-domain response.
 
 ```{code-cell} ipython3
 :tags: []
@@ -734,13 +762,13 @@ plt.xlim(-10, 10)
 fig.savefig('sampler-current-response.pdf', bbox_inches='tight')
 ```
 
-### Correct the Sampled Waveform
+## Correct the Sampled Waveform
 
 +++
 
 We correct the response by removing the amplitude envelope of the finite bandwidth response of the sampler due to the emission response.  
 
-Again, if the antenna itself has a finite bandwidth, this could also be incorporated/accounted for here in a similar way. However, we currently assume the antenna bandwidth is infinite.
+As noted in the text, if the antenna itself has a finite bandwidth, this could also be incorporated/accounted for here in a similar way. 
 
 ```{code-cell} ipython3
 # -- Get the peaks fo the first +/-N harmonics:
@@ -805,11 +833,15 @@ ax[k].set_xlabel('$\omega/\omega_c$')
 ax[k].set_ylabel('Field Spectrum');
 ```
 
-### Gabor Transform -- High Spectral + High Temporal Resolution Time-Freq. Analysis
+## Gabor Transform -- High Spectral + High Temporal Resolution Time-Freq. Analysis
 
 +++
 
 Here we compute the Gabor Transforms (basically STFTs having Gaussian windows).  This enables us to compare in a more complete and visual way the quality of the sampled waveform and how well it matches to the true waveform from simulation.
+
++++
+
+### Compute Gabor transform for the sampled fields
 
 ```{code-cell} ipython3
 T = 2*np.pi/w0 #in atomic units
@@ -838,6 +870,8 @@ spectrogram_sampled = spectrogram
 f_norm_sampled = f_norm
 t_spec_sampled = t_spec + tau_range[0]
 ```
+
+### Compute Gabor transform for the TDDFT HHG fields
 
 ```{code-cell} ipython3
 T = 2*np.pi/w0 #in atomic units
@@ -872,143 +906,11 @@ f_norm_simulated = f_norm
 t_spec_simulated = t_spec + t_fs_centered[0]
 ```
 
-### Create the Final Plot
+## Plot Comparing Fields and Gabor Transforms
 
 +++
 
-This plot compares the full HH and time-sampled waveforms.  Gabor transforms are used to demonstrate that the full time-frequency information up to the 9th harmonic can be retrieved via solid-state sampling as performed in \[[Bionta *et al.*, Nature Photonics volume 15, pages 456–460 (2021)](https://www.nature.com/articles/s41566-021-00792-0)\]
-
-Other methods such as TIP-TOE \[[Cho *et al*, Scientific Reports volume 9, Article number: 16067 (2019)](https://www.nature.com/articles/s41598-019-52237-y)\] or NPS \[[Sederberg *et al.*, Nature Communications volume 11, Article number: 430 (2020)](https://www.nature.com/articles/s41467-019-14268-x)\] could be used.
-
-+++
-
-#### V1 -- Square Plot
-
-```{code-cell} ipython3
-fig = plt.figure()
-fig.set_size_inches(10, 10)
-
-gs = fig.add_gridspec(2,2, width_ratios=(1, 1.25))
-ax1 = fig.add_subplot(gs[0, :])
-
-t_cycle_center = 0
-t_range = 60
-
-t_fs_center = (t_fs[-1] + t_fs[0])/2.0
-
-plt.plot(t_fs_centered, (F_gen_region/np.abs(F_gen_region).max())**2, 
-         label='TDDFT HH Fields',
-         color='tab:green',
-         linewidth=3.0, alpha=0.6)
-plt.plot(tau_range, (F_sampled_corrected/np.abs(F_sampled_corrected).max())**2, 
-         label='Sampled HH Fields',
-         color='tab:red')
-plt.plot(tddft_data_2_high['t_drive']*1e15/pca.tcon - t_fs_center, 
-         tddft_data_2_high['F_drive']**2, 
-         label=r'$E_\mathrm{D}$',
-         color='tab:blue')
-
-
-plt.legend(fontsize=14, loc='upper left')
-
-plt.xlim(t_cycle_center - t_range/2.0, t_cycle_center + t_range/2.0)
-plt.ylim(0, 1.18)
-plt.xlabel('Time (fs)', fontsize=14)
-plt.ylabel('Squared Field (arb. units)', fontsize=14)
-plt.tick_params(labelsize=14)
-
-#Labeling and look
-plt.text(0.99, 0.925, '(a)', 
-         horizontalalignment='right',
-         verticalalignment='center', 
-         transform=ax1.transAxes,
-         fontsize=14,
-         bbox=dict(facecolor='white', alpha=0.75, edgecolor='none'))
-plt.text(0.20, 0.05, 'Intraband', 
-         horizontalalignment='left',
-         verticalalignment='bottom', 
-         transform=ax1.transAxes,
-         fontsize=14,
-         bbox=dict(facecolor='white', alpha=0.75, edgecolor='none'))
-plt.text(0.80, 0.05, 'Interband', 
-         horizontalalignment='right',
-         verticalalignment='bottom', 
-         transform=ax1.transAxes,
-         fontsize=14,
-         bbox=dict(facecolor='white', alpha=0.75, edgecolor='none'))
-
-
-ax2 = fig.add_subplot(gs[1, 0])
-
-plt.pcolormesh(f_norm_simulated, t_spec_simulated, 
-               np.log(np.abs(spectrogram_simulated)**2).transpose(), 
-               shading='gouraud', cmap='jet',
-               rasterized='true')
-
-
-plt.xlabel('Harmonic Order', fontsize=14)
-plt.ylabel('Time (fs)', fontsize=14)
-#cbar = plt.colorbar()
-#plt.clim(-20, -5)
-plt.clim(-25, 0)
-plt.ylim(-60, 100)
-plt.xlim(2.5, 9.5)
-
-plt.tick_params(labelsize=14)
-ax2.set_xticks([3,5,7,9])
-
-photon_energy = f_harm*1e15*2*np.pi*pcSI.hbar/pcSI.evcon #Find photon energy of driver in eV
-plt.axvline(BG/photon_energy, linewidth=2, color='white');
-
-plt.text(0.97, 0.925, 'TDDFT HH Fields (b)', 
-         horizontalalignment='right',
-         verticalalignment='center', 
-         transform=ax2.transAxes,
-         fontsize=14,
-         color='black',
-         bbox=dict(facecolor='white', alpha=0.0, edgecolor='none'))
-
-ax3 = fig.add_subplot(gs[1, 1])
-
-plt.pcolormesh(f_norm_sampled, t_spec_sampled, 
-               np.log(np.abs(spectrogram_sampled)**2).transpose(), 
-               shading='gouraud', cmap='jet',
-               rasterized='true')
-
-
-plt.xlabel('Harmonic Order', fontsize=14)
-
-cbar = plt.colorbar()
-
-plt.clim(-25, 0)
-plt.ylim(-60, 100)
-plt.xlim(2.5, 9.5)
-
-plt.tick_params(labelsize=14)
-cbar.ax.tick_params(labelsize=14)
-cbar.ax.set_ylabel('log(Intensity) (arb. units)', fontsize=14)
-
-#Turn off y-label of right plot as this axis is shared:
-plt.tick_params('y', labelleft=False)
-ax3.set_xticks([3,5,7,9])
-
-
-photon_energy = f_harm*1e15*2*np.pi*pcSI.hbar/pcSI.evcon #Find photon energy of driver in eV
-plt.axvline(BG/photon_energy, linewidth=2, color='white')
-
-plt.text(0.97, 0.925, 'Sampled HH Fields (c)', 
-         horizontalalignment='right',
-         verticalalignment='center', 
-         transform=ax3.transAxes,
-         fontsize=14,
-         color='black',
-         bbox=dict(facecolor='white', alpha=0.0, edgecolor='none'));
-
-plt.savefig('sampled-vs-tddft-fields-2-um-high.pdf', bbox_inches='tight');
-plt.savefig('sampled-vs-tddft-fields-2-um-high.png', bbox_inches='tight', dpi=300);
-```
-
-#### V2 -- Wide Plot
+This final plot compares the sampling response to the TDDFT fields in both time and frequency. 
 
 ```{code-cell} ipython3
 fig = plt.figure()
