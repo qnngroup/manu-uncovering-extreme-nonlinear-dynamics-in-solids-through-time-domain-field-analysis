@@ -1,6 +1,6 @@
 * Description
 
-Simulation data, figures, and analysis for [FIXME: TITLE].
+Simulation data, figures, and analysis for "Uncovering Extreme Nonlinear Dynamics in Solids Through Time-Domain Field Analysis".
 
 [FIXME: Reference to the paper when submitted/accepted/posted to arXiv].
 
