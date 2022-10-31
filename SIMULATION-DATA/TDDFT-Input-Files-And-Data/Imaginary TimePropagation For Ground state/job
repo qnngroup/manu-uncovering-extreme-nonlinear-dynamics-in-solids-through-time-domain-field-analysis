@@ -1,0 +1,31 @@
+JobId=5190650 JobName=job_initial_N100_a5.3
+   UserId=bylling(1271) GroupId=fyslb(511) MCS_label=N/A
+   Priority=39760 Nice=0 Account=fyslb QOS=normal
+   JobState=RUNNING Reason=None Dependency=(null)
+   Requeue=1 Restarts=0 BatchFlag=1 Reboot=0 ExitCode=0:0
+   DerivedExitCode=0:0
+   RunTime=00:00:24 TimeLimit=1-00:00:00 TimeMin=N/A
+   SubmitTime=2022-03-01T15:05:16 EligibleTime=2022-03-01T15:05:16
+   AccrueTime=2022-03-01T15:05:16
+   StartTime=2022-03-01T15:05:24 EndTime=2022-03-02T15:05:24 Deadline=N/A
+   SuspendTime=None SecsPreSuspend=0 LastSchedEval=2022-03-01T15:05:24 Scheduler=Main
+   Partition=q20 AllocNode:Sid=s96n41:6820
+   ReqNodeList=(null) ExcNodeList=s91n[51-54,81]
+   NodeList=s71n52
+   BatchHost=s71n52
+   NumNodes=1 NumCPUs=20 NumTasks=1 CPUs/Task=1 ReqB:S:C:T=0:0:*:*
+   TRES=cpu=20,mem=128400M,node=1,billing=20
+   Socks/Node=* NtasksPerN:B:S:C=0:0:*:* CoreSpec=*
+   JOB_GRES=(null)
+     Nodes=s71n52 CPU_IDs=0-19 Mem=128400 GRES=
+   MinCPUsNode=1 MinMemoryNode=128400M MinTmpDiskNode=0
+   Features=(null) DelayBoot=00:00:00
+   OverSubscribe=NO Contiguous=0 Licenses=(null) Network=(null)
+   Command=/home/bylling/Programs/TDDFT_Two_Pulse_Version3.2/job_initial_N100_a5.3
+   WorkDir=/home/bylling/Programs/TDDFT_Two_Pulse_Version3.2
+   StdErr=/home/bylling/Programs/TDDFT_Two_Pulse_Version3.2/slurm-5190650.out
+   StdIn=/dev/null
+   StdOut=/home/bylling/Programs/TDDFT_Two_Pulse_Version3.2/slurm-5190650.out
+   Power=
+   
+
