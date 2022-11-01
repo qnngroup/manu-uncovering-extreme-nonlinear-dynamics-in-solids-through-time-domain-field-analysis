@@ -1,9 +1,7 @@
 * Description
 
-Simulation data, figures, and analysis for "Uncovering Extreme Nonlinear Dynamics in Solids Through Time-Domain Field Analysis".
+Simulation data, figures, and analysis for "Uncovering Extreme Nonlinear Dynamics in Solids Through Time-Domain Field Analysis". (https://arxiv.org/abs/2210.07899)
 
 Notes and code for data analysis and figure generation can be found in [[./analysis-and-plots.ipynb]].  
 
-[FIXME: Reference to the paper when submitted/accepted/posted to arXiv].
-
-
+The data from the TDDFT calculations including the potentials, the ground state and propagated wavefunctions, the generated current, as well as the associated input files for the calculations are all collected in /Simulation-data/TDDFT-Input-Files-And-Data. The inputfiles are calculated with the time-dependent Kohn-Sham solver available in QPROP. For download, manuals and support with regards to the QPROP code, we refer to "https://www.qtmps.physik.uni-rostock.de/forschung/qprop/qprop/". 
