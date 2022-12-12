@@ -978,7 +978,7 @@ plt.pcolormesh(f_norm_simulated[0:50], t_spec_simulated + t_fs_center,
 
 
 plt.xlabel('Harmonic Order', fontsize=14)
-plt.ylabel('Time (fs)', fontsize=14, labelpad=-5)
+plt.ylabel('Time (fs)', fontsize=14, labelpad=1)
 #cbar = plt.colorbar()
 #plt.clim(-20, -5)
 plt.clim(-25, 0)
