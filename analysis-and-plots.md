@@ -5,7 +5,7 @@ jupytext:
     extension: .md
     format_name: myst
     format_version: 0.13
-    jupytext_version: 1.11.5
+    jupytext_version: 1.14.2
 kernelspec:
   display_name: Python 3 (ipykernel)
   language: python
@@ -26,7 +26,7 @@ $$\newcommand{\braket}[2]{\left\langle{#1}\middle|{#2}\right\rangle}$$
 
 # Change Screen Width
 
-Some HTML code to tweak the screen width in Jupyter for nicer editing. 
+Some HTML code to tweak the screen width in Jupyter for nicer editing.
 
 ```{code-cell} ipython3
 width = 70 #Width as a percentage of the screen
@@ -72,7 +72,7 @@ import data_load_functions as load #Convenience functions for loading simulated 
 
 +++
 
-Below the stored simulated data is loaded for subsequent analysis and plot generation. 
+Below the stored simulated data is loaded for subsequent analysis and plot generation.
 
 ```{code-cell} ipython3
 #-- Load key simulation parameters and generated current data --
@@ -180,7 +180,7 @@ plt.savefig('spectra.pdf', bbox_inches='tight')
 
 +++
 
-The following code blocks generate plots for the time-domain analysis of TDDFT fields and comparison to semiclassical intraband models. 
+The following code blocks generate plots for the time-domain analysis of TDDFT fields and comparison to semiclassical intraband models.
 
 +++
 
@@ -509,7 +509,7 @@ plt.savefig('time-domain-2p3-um-low.pdf', bbox_inches='tight');
 
 +++
 
-The following compares the TDDFT and semiclassical intraband fields in the time-domain.  
+The following compares the TDDFT and semiclassical intraband fields in the time-domain.
 
 ```{code-cell} ipython3
 fig = plt.figure()
@@ -581,7 +581,7 @@ plt.savefig('tddft-semiclassical-comparison-2-um-low.pdf', bbox_inches='tight');
 
 The purpose of the following is to compare the actual fields to the result one would obtain via sampling.
 
-Currently the sampled response assumes a flat electromagnetic response of the tunneling medium.  The tunneling medium is assumed to be a metal here.  The reason for this is to focus on the sampling limits of the tunneling process itself, and not other factos that are in part related to engineering of the structure of the medium.  
+Currently the sampled response assumes a flat electromagnetic response of the tunneling medium.  The tunneling medium is assumed to be a metal here.  The reason for this is to focus on the sampling limits of the tunneling process itself, and not other factos that are in part related to engineering of the structure of the medium.
 
 +++
 
@@ -768,7 +768,7 @@ fig.savefig('sampler-current-response.pdf', bbox_inches='tight')
 
 We correct the response by removing the amplitude envelope of the finite bandwidth response of the sampler due to the emission response.  
 
-As noted in the text, if the antenna itself has a finite bandwidth, this could also be incorporated/accounted for here in a similar way. 
+As noted in the text, if the antenna itself has a finite bandwidth, this could also be incorporated/accounted for here in a similar way.
 
 ```{code-cell} ipython3
 # -- Get the peaks fo the first +/-N harmonics:
@@ -910,7 +910,7 @@ t_spec_simulated = t_spec + t_fs_centered[0]
 
 +++
 
-This final plot compares the sampling response to the TDDFT fields in both time and frequency. 
+This final plot compares the sampling response to the TDDFT fields in both time and frequency.
 
 ```{code-cell} ipython3
 fig = plt.figure()
@@ -926,14 +926,14 @@ t_range = 60
 
 t_fs_center = (t_fs[-1] + t_fs[0])/2.0
 
-plt.plot(t_fs_centered, (F_gen_region/np.abs(F_gen_region).max())**2, 
+plt.plot(t_fs_centered + t_fs_center, (F_gen_region/np.abs(F_gen_region).max())**2, 
          label=r'$E_\mathrm{sig}(t)$',
          color='tab:green',
          linewidth=3.0, alpha=0.6)
-plt.plot(tau_range, (F_sampled_corrected/np.abs(F_sampled_corrected).max())**2, 
+plt.plot(tau_range + t_fs_center, (F_sampled_corrected/np.abs(F_sampled_corrected).max())**2, 
          label=r'$E_\mathrm{sampled}(t)$',
          color='tab:red')
-plt.plot(tddft_data_2_high['t_drive']*1e15/pca.tcon - t_fs_center, 
+plt.plot(tddft_data_2_high['t_drive']*1e15/pca.tcon, 
          tddft_data_2_high['F_drive']**2, 
          label=r'$E_\mathrm{D}(t)$',
          color='tab:blue')
@@ -941,7 +941,8 @@ plt.plot(tddft_data_2_high['t_drive']*1e15/pca.tcon - t_fs_center,
 
 plt.legend(fontsize=14, loc='upper left', frameon=False)
 
-plt.xlim(t_cycle_center - t_range/2.0, t_cycle_center + t_range/2.0)
+plt.xlim(t_fs_center + t_cycle_center - t_range/2.0, 
+         t_fs_center + t_cycle_center + t_range/2.0)
 plt.ylim(0, 1.38)
 plt.xlabel('Time (fs)', fontsize=14)
 plt.ylabel('Squared Field (arb. units)', fontsize=14)
@@ -970,7 +971,7 @@ plt.text(0.9, 0.05, 'Interband',
 
 ax2 = fig.add_subplot(gs1[0, 0])
 
-plt.pcolormesh(f_norm_simulated[0:50], t_spec_simulated, 
+plt.pcolormesh(f_norm_simulated[0:50], t_spec_simulated + t_fs_center, 
                np.log(np.abs(spectrogram_simulated[0:50, :])**2).transpose(), 
                shading='gouraud', cmap='jet',
                rasterized='true')
@@ -981,7 +982,7 @@ plt.ylabel('Time (fs)', fontsize=14, labelpad=-5)
 #cbar = plt.colorbar()
 #plt.clim(-20, -5)
 plt.clim(-25, 0)
-plt.ylim(-60, 100)
+plt.ylim(-60 + t_fs_center, 100 + t_fs_center)
 plt.xlim(2.5, 9.5)
 
 plt.tick_params(labelsize=14)
@@ -1000,7 +1001,7 @@ plt.text(0.97, 0.925, r'$E_\mathrm{sig}(t)$',
 
 ax3 = fig.add_subplot(gs1[0, 1])
 
-plt.pcolormesh(f_norm_sampled, t_spec_sampled, 
+plt.pcolormesh(f_norm_sampled, t_spec_sampled + t_fs_center, 
                np.log(np.abs(spectrogram_sampled)**2).transpose(), 
                shading='gouraud', cmap='jet',
                rasterized='true')
@@ -1011,7 +1012,7 @@ plt.xlabel('Harmonic Order', fontsize=14)
 cbar = plt.colorbar()
 
 plt.clim(-25, 0)
-plt.ylim(-60, 100)
+plt.ylim(-60 + t_fs_center, 100 + t_fs_center)
 plt.xlim(2.5, 9.5)
 
 plt.tick_params(labelsize=14)
